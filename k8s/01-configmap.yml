@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: playraze-config
+  namespace: playraze
+data:
+  # Database
+  DB_HOST: "postgres-service"
+  DB_PORT: "5432"
+  DB_NAME: "playraze"
+  # Redis
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  # Services
+  AUTH_SERVICE_URL: "http://auth-service:8081"
+  USER_SERVICE_URL: "http://user-service:8082"
+  GAME_SERVICE_URL: "http://game-service:8083"
+  CHAT_SERVICE_URL: "http://chat-service:8084"
+  WALLET_SERVICE_URL: "http://wallet-service:8085"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:8086"
+  # Logging
+  LOG_LEVEL: "INFO"
+  SPRING_PROFILES_ACTIVE: "prod"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: playraze-secrets
+  namespace: playraze
+type: Opaque
+stringData:
+  DB_USERNAME: "playraze"
+  DB_PASSWORD: "playraze123"
+  REDIS_PASSWORD: "redis123"
+  JWT_SECRET: "cGxheXJhemUtand0LXNlY3JldC1rZXktZm9yLXByb2R1Y3Rpb24tbWluaW11bS0zMi1jaGFycw=="

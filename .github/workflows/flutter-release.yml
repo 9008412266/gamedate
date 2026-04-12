@@ -1,0 +1,156 @@
+name: Flutter APK & AAB Release
+
+on:
+  push:
+    tags:
+      - 'v*'          # v1.0.0, v1.2.3 etc tag push చేసినప్పుడు
+  workflow_dispatch:  # Manual trigger కూడా
+
+jobs:
+  build-android:
+    name: Build APK & AAB
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Get Flutter dependencies
+        working-directory: frontend/flutter-app
+        run: flutter pub get
+
+      # ── Keystore setup (GitHub Secrets లో upload చేయండి) ──
+      - name: Decode keystore
+        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        working-directory: frontend/flutter-app/android
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/playraze.keystore
+
+      - name: Create key.properties
+        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        working-directory: frontend/flutter-app/android
+        run: |
+          cat > key.properties << EOF
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=playraze.keystore
+          EOF
+
+      # ── Build APK (debug — no signing needed) ──
+      - name: Build Debug APK
+        working-directory: frontend/flutter-app
+        run: flutter build apk --debug --split-per-abi
+
+      # ── Build Release APK ──
+      - name: Build Release APK
+        working-directory: frontend/flutter-app
+        run: |
+          if [ -f android/key.properties ]; then
+            flutter build apk --release --split-per-abi
+          else
+            flutter build apk --debug --split-per-abi
+          fi
+
+      # ── Build AAB (Play Store) ──
+      - name: Build AAB
+        working-directory: frontend/flutter-app
+        run: |
+          if [ -f android/key.properties ]; then
+            flutter build appbundle --release
+          else
+            flutter build appbundle --debug
+          fi
+
+      # ── Get version from pubspec.yaml ──
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(grep "^version:" frontend/flutter-app/pubspec.yaml | sed 's/version: //')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      # ── Upload artifacts ──
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: playraze-apk-${{ steps.version.outputs.version }}
+          path: |
+            frontend/flutter-app/build/app/outputs/flutter-apk/*.apk
+            frontend/flutter-app/build/app/outputs/bundle/**/*.aab
+          retention-days: 30
+
+      # ── Create GitHub Release ──
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Playraze ${{ steps.version.outputs.tag || steps.version.outputs.version }}"
+          tag_name: ${{ steps.version.outputs.tag || format('v{0}', steps.version.outputs.version) }}
+          body: |
+            ## Playraze ${{ steps.version.outputs.version }}
+
+            ### Downloads
+            | File | Description |
+            |------|-------------|
+            | `playraze-arm64-v8a-debug.apk` | Android 64-bit (Most phones) |
+            | `playraze-armeabi-v7a-debug.apk` | Android 32-bit (Older phones) |
+            | `playraze-x86_64-debug.apk` | Emulator / x86 |
+            | `playraze-release.aab` | Google Play Store bundle |
+
+            ### Install APK
+            1. Download the APK for your device
+            2. Enable "Install from unknown sources" in Settings
+            3. Install the APK
+
+            ### Changes
+            - Auto-generated release from commit ${{ github.sha }}
+          files: |
+            frontend/flutter-app/build/app/outputs/flutter-apk/*.apk
+            frontend/flutter-app/build/app/outputs/bundle/**/*.aab
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Web Build → GitHub Pages ──
+  build-web:
+    name: Deploy Web to GitHub Pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        working-directory: frontend/flutter-app
+        run: flutter pub get
+
+      - name: Build Web
+        working-directory: frontend/flutter-app
+        run: flutter build web --release --base-href /playraze/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: frontend/flutter-app/build/web
+          commit_message: "Deploy Playraze web app"
