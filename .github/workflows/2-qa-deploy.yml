@@ -1,11 +1,11 @@
-name: "2 · Test — Deploy & Validate"
+name: "2 · QA — Deploy & Validate"
 
 # ─────────────────────────────────────────────
-# test branch merge అయినప్పుడు trigger
+# qa branch merge అయినప్పుడు trigger
 # ─────────────────────────────────────────────
 on:
   push:
-    branches: [test]
+    branches: [qa]
   workflow_dispatch:
     inputs:
       image_tag:
@@ -38,13 +38,13 @@ jobs:
           echo "Deploying image tag: $TAG"
 
   # ══════════════════════════════════════════════
-  # JOB 2 — Test environment కి deploy (Docker Compose / K8s)
+  # JOB 2 — QA environment కి deploy (Docker Compose / K8s)
   # ══════════════════════════════════════════════
   deploy-to-test:
-    name: "② Deploy to Test Env (same image: ${{ needs.resolve-image-tag.outputs.tag }})"
+    name: "② Deploy to QA Env (same image: ${{ needs.resolve-image-tag.outputs.tag }})"
     runs-on: ubuntu-latest
     needs: resolve-image-tag
-    environment: test
+    environment: qa
 
     steps:
       - uses: actions/checkout@v4
@@ -67,12 +67,12 @@ jobs:
           echo "  chat-service      → ${{ env.IMAGE_PREFIX }}-chat-service:${{ needs.resolve-image-tag.outputs.tag }}"
           echo "  wallet-service    → ${{ env.IMAGE_PREFIX }}-wallet-service:${{ needs.resolve-image-tag.outputs.tag }}"
           echo "  notification-service → ${{ env.IMAGE_PREFIX }}-notification-service:${{ needs.resolve-image-tag.outputs.tag }}"
-          # kubectl apply -f k8s/ -n playraze-test
+          # kubectl apply -f k8s/ -n playraze-qa
 
       - name: Upload deployment log
         uses: actions/upload-artifact@v4
         with:
-          name: test-deploy-log-${{ needs.resolve-image-tag.outputs.tag }}
+          name: qa-deploy-log-${{ needs.resolve-image-tag.outputs.tag }}
           path: k8s/
           retention-days: 14
 
@@ -137,7 +137,7 @@ jobs:
 
       - name: Health checks
         run: |
-          echo "✅ Test environment health checks"
+          echo "✅ QA environment health checks"
           echo "Checking: api-gateway, auth-service, user-service..."
           # curl -f http://test.playraze.app/actuator/health || exit 1
 
@@ -150,10 +150,10 @@ jobs:
           retention-days: 14
 
   # ══════════════════════════════════════════════
-  # JOB 5 — Test pass → stage branch కి auto PR
+  # JOB 5 — Test pass → stg branch కి auto PR
   # ══════════════════════════════════════════════
-  promote-to-stage:
-    name: "⑤ Promote test → stage"
+  promote-to-stg:
+    name: "⑤ Promote qa → stg"
     runs-on: ubuntu-latest
     needs: validate-test-env
     permissions:
@@ -169,14 +169,14 @@ jobs:
         id: tag
         run: echo "tag=dev-$(echo ${{ github.sha }} | cut -c1-8)" >> $GITHUB_OUTPUT
 
-      - name: Create or update stage branch
+      - name: Create or update stg branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -B stage
-          git push origin stage --force
+          git checkout -B stg
+          git push origin stg --force
 
-      - name: Create PR test → stage
+      - name: Create PR qa → stg
         uses: actions/github-script@v7
         with:
           script: |
@@ -184,17 +184,17 @@ jobs:
             const prs = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              head: 'test',
-              base: 'stage',
+              head: 'qa',
+              base: 'stg',
               state: 'open'
             });
             if (prs.data.length === 0) {
               await github.rest.pulls.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                title: `🚀 Promote to Stage — ${tag}`,
-                body: `## Test → Stage Promotion\n\n**Image Tag:** \`${tag}\`\n\n### ✅ Test Environment Passed\n- Deployment successful\n- Health checks passed\n- APK + AAB built\n\n### 📦 Artifacts\n[Download APK/AAB](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})\n\n> Review and merge to deploy same image to staging.`,
-                head: 'test',
-                base: 'stage'
+                title: `🚀 Promote to STG — ${tag}`,
+                body: `## QA → STG Promotion\n\n**Image Tag:** \`${tag}\`\n\n### ✅ QA Environment Passed\n- Deployment successful\n- Health checks passed\n- APK + AAB built\n\n### 📦 Artifacts\n[Download APK/AAB](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})\n\n> Review and merge to deploy same image to staging.`,
+                head: 'qa',
+                base: 'stg'
               });
             }

@@ -1,7 +1,7 @@
 name: "4 · Production — Deploy on PR Merge"
 
 # ─────────────────────────────────────────────
-# stage → main PR merge అయినప్పుడు trigger
+# stg → main PR merge అయినప్పుడు trigger
 # ─────────────────────────────────────────────
 on:
   push:
@@ -52,7 +52,7 @@ jobs:
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "  🚀 PRODUCTION DEPLOYMENT"
           echo "  Image Tag: $TAG"
-          echo "  Same image deployed: dev → test → stage → prod"
+          echo "  Same image deployed: dev → qa → stg → prod"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "Services:"
           for svc in api-gateway auth-service user-service game-service chat-service wallet-service notification-service; do
@@ -148,7 +148,7 @@ jobs:
 
             ### Pipeline Flow
             ```
-            dev → test → stage → ✅ production
+            dev → qa → stg → ✅ production
             ```
             Same image promoted through all environments — no code changes.
 

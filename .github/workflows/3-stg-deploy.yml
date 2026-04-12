@@ -1,11 +1,11 @@
-name: "3 · Stage — Deploy & PR to Main"
+name: "3 · STG — Deploy & PR to Main"
 
 # ─────────────────────────────────────────────
-# stage branch merge అయినప్పుడు trigger
+# stg branch merge అయినప్పుడు trigger
 # ─────────────────────────────────────────────
 on:
   push:
-    branches: [stage]
+    branches: [stg]
   workflow_dispatch:
     inputs:
       image_tag:
@@ -36,16 +36,16 @@ jobs:
   # ══════════════════════════════════════════════
   # JOB 2 — Stage deploy (same image from dev)
   # ══════════════════════════════════════════════
-  deploy-to-stage:
-    name: "② Deploy to Stage (image: ${{ needs.resolve-image-tag.outputs.tag }})"
+  deploy-to-stg:
+    name: "② Deploy to STG (image: ${{ needs.resolve-image-tag.outputs.tag }})"
     runs-on: ubuntu-latest
     needs: resolve-image-tag
-    environment: stage
+    environment: stg
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy to stage environment
+      - name: Deploy to stg environment
         run: |
           TAG="${{ needs.resolve-image-tag.outputs.tag }}"
           echo "━━━ Deploying Playraze $TAG to STAGE ━━━"
@@ -56,20 +56,20 @@ jobs:
           echo "  chat-service         → ${{ env.IMAGE_PREFIX }}-chat-service:$TAG"
           echo "  wallet-service       → ${{ env.IMAGE_PREFIX }}-wallet-service:$TAG"
           echo "  notification-service → ${{ env.IMAGE_PREFIX }}-notification-service:$TAG"
-          # kubectl set image deployment/* *=${{ env.IMAGE_PREFIX }}-*:$TAG -n playraze-stage
+          # kubectl set image deployment/* *=${{ env.IMAGE_PREFIX }}-*:$TAG -n playraze-stg
 
       - name: Upload stage deploy log
         uses: actions/upload-artifact@v4
         with:
-          name: stage-deploy-log-${{ needs.resolve-image-tag.outputs.tag }}
+          name: stg-deploy-log-${{ needs.resolve-image-tag.outputs.tag }}
           path: k8s/
           retention-days: 30
 
   # ══════════════════════════════════════════════
-  # JOB 3 — Stage APK + AAB (release signed)
+  # JOB 3 — STG APK + AAB (release signed)
   # ══════════════════════════════════════════════
-  build-stage-artifacts:
-    name: "③ Build Stage APK + AAB (Release)"
+  build-stg-artifacts:
+    name: "③ Build STG APK + AAB (Release)"
     runs-on: ubuntu-latest
     needs: resolve-image-tag
 
@@ -122,32 +122,32 @@ jobs:
             flutter build appbundle --debug
           fi
 
-      - name: Upload Stage APK
+      - name: Upload STG APK
         uses: actions/upload-artifact@v4
         with:
-          name: playraze-apk-stage-${{ needs.resolve-image-tag.outputs.tag }}
+          name: playraze-apk-stg-${{ needs.resolve-image-tag.outputs.tag }}
           path: frontend/flutter-app/build/app/outputs/flutter-apk/*.apk
           retention-days: 30
 
-      - name: Upload Stage AAB
+      - name: Upload STG AAB
         uses: actions/upload-artifact@v4
         with:
-          name: playraze-aab-stage-${{ needs.resolve-image-tag.outputs.tag }}
+          name: playraze-aab-stg-${{ needs.resolve-image-tag.outputs.tag }}
           path: frontend/flutter-app/build/app/outputs/bundle/**/*.aab
           retention-days: 30
 
   # ══════════════════════════════════════════════
   # JOB 4 — Stage smoke tests
   # ══════════════════════════════════════════════
-  stage-smoke-tests:
+  stg-smoke-tests:
     name: "④ Stage Smoke Tests"
     runs-on: ubuntu-latest
-    needs: deploy-to-stage
+    needs: deploy-to-stg
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Smoke test stage environment
+      - name: Smoke test stg environment
         run: |
           echo "✅ Stage smoke tests passed"
           # curl -f https://stage.playraze.app/actuator/health
@@ -157,7 +157,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: stage-smoke-results-${{ needs.resolve-image-tag.outputs.tag }}
+          name: stg-smoke-results-${{ needs.resolve-image-tag.outputs.tag }}
           path: "tests/smoke/*.json"
           retention-days: 14
 
@@ -168,7 +168,7 @@ jobs:
   create-github-release:
     name: "⑤ Create GitHub Release"
     runs-on: ubuntu-latest
-    needs: [stage-smoke-tests, build-stage-artifacts]
+    needs: [stg-smoke-tests, build-stg-artifacts]
     permissions:
       contents: write
 
@@ -186,13 +186,13 @@ jobs:
       - name: Download APK artifact
         uses: actions/download-artifact@v4
         with:
-          name: playraze-apk-stage-${{ needs.resolve-image-tag.outputs.tag }}
+          name: playraze-apk-stg-${{ needs.resolve-image-tag.outputs.tag }}
           path: release-files/apk/
 
       - name: Download AAB artifact
         uses: actions/download-artifact@v4
         with:
-          name: playraze-aab-stage-${{ needs.resolve-image-tag.outputs.tag }}
+          name: playraze-aab-stg-${{ needs.resolve-image-tag.outputs.tag }}
           path: release-files/aab/
 
       - name: Create GitHub Release with APK + AAB
@@ -205,7 +205,7 @@ jobs:
 
             **Image Tag:** `${{ steps.ver.outputs.tag }}`
             **Commit:** ${{ github.sha }}
-            **Pipeline:** dev → test → stage ✅
+            **Pipeline:** dev → qa → stage ✅
 
             ---
 
@@ -242,10 +242,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # ══════════════════════════════════════════════
-  # JOB 6 — stage → main PR auto create
+  # JOB 6 — stg → main PR auto create
   # ══════════════════════════════════════════════
   promote-to-main:
-    name: "⑥ Create PR stage → main"
+    name: "⑥ Create PR stg → main"
     runs-on: ubuntu-latest
     needs: create-github-release
     permissions:
@@ -261,7 +261,7 @@ jobs:
         id: tag
         run: echo "tag=dev-$(echo ${{ github.sha }} | cut -c1-8)" >> $GITHUB_OUTPUT
 
-      - name: Create PR stage → main
+      - name: Create PR stg → main
         uses: actions/github-script@v7
         with:
           script: |
@@ -269,7 +269,7 @@ jobs:
             const prs = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              head: 'stage',
+              head: 'stg',
               base: 'main',
               state: 'open'
             });
@@ -278,8 +278,8 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title: `🏁 Release to Production — ${tag}`,
-                body: `## Stage → Production Release\n\n**Image Tag:** \`${tag}\`\n\n### ✅ Full Pipeline Passed\n| Stage | Status |\n|-------|--------|\n| L1 Unit Tests | ✅ |\n| L2 Integration Tests | ✅ |\n| L3 Smoke Tests | ✅ |\n| Test Env Deploy | ✅ |\n| Stage Deploy | ✅ |\n| APK + AAB Built | ✅ |\n| GitHub Release | ✅ |\n\n### 🐳 Image to Deploy\n\`${tag}\` — same image across all environments\n\n> **Merge this PR** to deploy to production.`,
-                head: 'stage',
+                body: `## STG → Production Release\n\n**Image Tag:** \`${tag}\`\n\n### ✅ Full Pipeline Passed\n| Stage | Status |\n|-------|--------|\n| L1 Unit Tests | ✅ |\n| L2 Integration Tests | ✅ |\n| L3 Smoke Tests | ✅ |\n| QA Env Deploy | ✅ |\n| Stage Deploy | ✅ |\n| APK + AAB Built | ✅ |\n| GitHub Release | ✅ |\n\n### 🐳 Image to Deploy\n\`${tag}\` — same image across all environments\n\n> **Merge this PR** to deploy to production.`,
+                head: 'stg',
                 base: 'main'
               });
               console.log(`PR created: ${pr.data.html_url}`);
