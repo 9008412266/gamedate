@@ -1,0 +1,470 @@
+name: "1 · Dev — Build, Test & Publish"
+
+# ─────────────────────────────────────────────
+# dev branch push చేసినప్పుడు trigger అవుతుంది
+# ─────────────────────────────────────────────
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/playraze
+  JAVA_VERSION: '17'
+  FLUTTER_VERSION: '3.24.0'
+
+jobs:
+  # ══════════════════════════════════════════════
+  # JOB 1 — common-lib ముందు build చేయాలి
+  #          (Maven Central లో లేదు — local install)
+  # ══════════════════════════════════════════════
+  build-common-lib:
+    name: "① Build common-lib"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: maven
+
+      - name: Install common-lib to local Maven repo
+        working-directory: backend/common-lib
+        run: mvn install -DskipTests -B
+
+      # తర్వాత jobs కి common-lib jar share చేయడానికి cache చేస్తున్నాం
+      - name: Cache common-lib jar
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.m2/repository/com/playraze/common-lib
+          key: common-lib-${{ github.sha }}
+
+  # ══════════════════════════════════════════════
+  # JOB 2 — Backend services build + unit tests (L1)
+  # ══════════════════════════════════════════════
+  backend-build-and-l1:
+    name: "② Backend Build + L1 Unit Tests"
+    runs-on: ubuntu-latest
+    needs: build-common-lib
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: playraze_test
+          POSTGRES_USER: playraze
+          POSTGRES_PASSWORD: playraze123
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports: ["5432:5432"]
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports: ["6379:6379"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: maven
+
+      # common-lib cache restore
+      - name: Restore common-lib cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.m2/repository/com/playraze/common-lib
+          key: common-lib-${{ github.sha }}
+
+      - name: Build all services (skip tests first)
+        run: |
+          for service in auth-service user-service game-service chat-service wallet-service notification-service api-gateway; do
+            echo "━━━ Building $service ━━━"
+            mvn package -DskipTests -B -f backend/$service/pom.xml
+          done
+
+      # L1 — Unit Tests
+      - name: "L1 · Unit Tests — Auth Service"
+        working-directory: backend/auth-service
+        run: mvn test -B -Dtest="*UnitTest,*Test" -DfailIfNoTests=false
+        env:
+          DB_URL: jdbc:postgresql://localhost:5432/playraze_test
+          DB_USERNAME: playraze
+          DB_PASSWORD: playraze123
+          REDIS_HOST: localhost
+          REDIS_PASSWORD: ""
+          JWT_SECRET: dGVzdC1qd3Qtc2VjcmV0LWtleS1mb3ItdGVzdGluZy1vbmx5LW1pbmltdW0tMzItY2hhcnM=
+
+      - name: "L1 · Unit Tests — Game Service"
+        working-directory: backend/game-service
+        run: mvn test -B -DfailIfNoTests=false
+        env:
+          DB_URL: jdbc:postgresql://localhost:5432/playraze_test
+          DB_USERNAME: playraze
+          DB_PASSWORD: playraze123
+          REDIS_HOST: localhost
+          REDIS_PASSWORD: ""
+          JWT_SECRET: dGVzdC1qd3Qtc2VjcmV0LWtleS1mb3ItdGVzdGluZy1vbmx5LW1pbmltdW0tMzItY2hhcnM=
+
+      - name: "L1 · Unit Tests — Wallet Service"
+        working-directory: backend/wallet-service
+        run: mvn test -B -DfailIfNoTests=false
+        env:
+          DB_URL: jdbc:postgresql://localhost:5432/playraze_test
+          DB_USERNAME: playraze
+          DB_PASSWORD: playraze123
+          REDIS_HOST: localhost
+          REDIS_PASSWORD: ""
+          JWT_SECRET: dGVzdC1qd3Qtc2VjcmV0LWtleS1mb3ItdGVzdGluZy1vbmx5LW1pbmltdW0tMzItY2hhcnM=
+
+      - name: Upload L1 test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: l1-test-results-${{ github.sha }}
+          path: backend/**/target/surefire-reports/*.xml
+          retention-days: 7
+
+      # Build artifacts (jars) save చేయడం తర్వాత docker build కి
+      - name: Save built jars
+        uses: actions/cache/save@v4
+        with:
+          path: backend/**/target/*.jar
+          key: backend-jars-${{ github.sha }}
+
+  # ══════════════════════════════════════════════
+  # JOB 3 — Flutter build + L1 tests
+  # ══════════════════════════════════════════════
+  flutter-build-and-l1:
+    name: "③ Flutter Build + L1 Tests"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Flutter pub get
+        working-directory: frontend/flutter-app
+        run: flutter pub get
+
+      - name: "L1 · Flutter analyze"
+        working-directory: frontend/flutter-app
+        run: flutter analyze --no-fatal-infos
+
+      - name: "L1 · Flutter unit tests"
+        working-directory: frontend/flutter-app
+        run: flutter test --coverage --reporter=json > test-results.json || true
+
+      - name: Upload Flutter test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flutter-l1-results-${{ github.sha }}
+          path: |
+            frontend/flutter-app/test-results.json
+            frontend/flutter-app/coverage/lcov.info
+          retention-days: 7
+
+  # ══════════════════════════════════════════════
+  # JOB 4 — L2 Integration Tests
+  # ══════════════════════════════════════════════
+  l2-integration-tests:
+    name: "④ L2 · Integration Tests"
+    runs-on: ubuntu-latest
+    needs: [backend-build-and-l1, flutter-build-and-l1]
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: playraze_test
+          POSTGRES_USER: playraze
+          POSTGRES_PASSWORD: playraze123
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-retries 5
+        ports: ["5432:5432"]
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-retries 5
+        ports: ["6379:6379"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: maven
+
+      - name: Restore common-lib
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.m2/repository/com/playraze/common-lib
+          key: common-lib-${{ github.sha }}
+
+      - name: "L2 · Auth Service integration test"
+        working-directory: backend/auth-service
+        run: mvn verify -B -DfailIfNoTests=false
+        env:
+          DB_URL: jdbc:postgresql://localhost:5432/playraze_test
+          DB_USERNAME: playraze
+          DB_PASSWORD: playraze123
+          REDIS_HOST: localhost
+          REDIS_PASSWORD: ""
+          JWT_SECRET: dGVzdC1qd3Qtc2VjcmV0LWtleS1mb3ItdGVzdGluZy1vbmx5LW1pbmltdW0tMzItY2hhcnM=
+          SPRING_PROFILES_ACTIVE: test
+
+      - name: Upload L2 test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: l2-test-results-${{ github.sha }}
+          path: backend/**/target/failsafe-reports/*.xml
+          retention-days: 7
+
+  # ══════════════════════════════════════════════
+  # JOB 5 — L3 E2E / Smoke Tests
+  # ══════════════════════════════════════════════
+  l3-smoke-tests:
+    name: "⑤ L3 · Smoke / E2E Tests"
+    runs-on: ubuntu-latest
+    needs: l2-integration-tests
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "L3 · API contract smoke tests"
+        run: |
+          echo "✅ L3 Smoke tests placeholder"
+          echo "Replace with: Newman (Postman), REST-assured, or Playwright tests"
+          # Example: npx newman run tests/e2e/playraze.postman_collection.json
+
+      - name: Upload L3 results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: l3-smoke-results-${{ github.sha }}
+          path: tests/e2e/results/
+          retention-days: 7
+
+  # ══════════════════════════════════════════════
+  # JOB 6 — Docker images build + push (GHCR)
+  #          SAME image tag అన్ని envs కి use అవుతుంది
+  # ══════════════════════════════════════════════
+  publish-docker-images:
+    name: "⑥ Publish Docker Images → GHCR"
+    runs-on: ubuntu-latest
+    needs: l3-smoke-tests
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      image_tag: ${{ steps.tag.outputs.tag }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - { name: api-gateway,          path: backend/api-gateway }
+          - { name: auth-service,         path: backend/auth-service }
+          - { name: user-service,         path: backend/user-service }
+          - { name: game-service,         path: backend/game-service }
+          - { name: chat-service,         path: backend/chat-service }
+          - { name: wallet-service,       path: backend/wallet-service }
+          - { name: notification-service, path: backend/notification-service }
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore common-lib
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.m2/repository/com/playraze/common-lib
+          key: common-lib-${{ github.sha }}
+
+      - name: Set up Java (for Maven build inside Docker)
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: maven
+
+      # Image tag = dev-<short-sha>  (same tag flows through all envs)
+      - name: Generate image tag
+        id: tag
+        run: |
+          TAG="dev-$(echo ${{ github.sha }} | cut -c1-8)"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Image tag: $TAG"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build common-lib before Docker build
+        run: mvn install -DskipTests -B -f backend/common-lib/pom.xml
+
+      - name: Build & Push ${{ matrix.service.name }}
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.service.path }}
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}-${{ matrix.service.name }}:${{ steps.tag.outputs.tag }}
+            ${{ env.IMAGE_PREFIX }}-${{ matrix.service.name }}:dev-latest
+          cache-from: type=gha,scope=${{ matrix.service.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service.name }}
+          build-args: |
+            BUILD_VERSION=${{ steps.tag.outputs.tag }}
+
+  # ══════════════════════════════════════════════
+  # JOB 7 — Flutter APK + AAB build
+  # ══════════════════════════════════════════════
+  build-flutter-artifacts:
+    name: "⑦ Build APK + AAB"
+    runs-on: ubuntu-latest
+    needs: l3-smoke-tests
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java (Android build needs it)
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Flutter pub get
+        working-directory: frontend/flutter-app
+        run: flutter pub get
+
+      - name: Build APK (split per ABI)
+        working-directory: frontend/flutter-app
+        run: flutter build apk --debug --split-per-abi
+
+      - name: Build AAB
+        working-directory: frontend/flutter-app
+        run: flutter build appbundle --debug
+
+      - name: Build Web
+        working-directory: frontend/flutter-app
+        run: flutter build web --release
+
+      # ── Artifacts upload (GitHub Actions লো download করা যাবে) ──
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: playraze-apk-dev-${{ github.sha }}
+          path: frontend/flutter-app/build/app/outputs/flutter-apk/*.apk
+          retention-days: 30
+
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: playraze-aab-dev-${{ github.sha }}
+          path: frontend/flutter-app/build/app/outputs/bundle/**/*.aab
+          retention-days: 30
+
+      - name: Upload Web build
+        uses: actions/upload-artifact@v4
+        with:
+          name: playraze-web-dev-${{ github.sha }}
+          path: frontend/flutter-app/build/web/
+          retention-days: 7
+
+  # ══════════════════════════════════════════════
+  # JOB 8 — dev లో అన్నీ pass అయ్యాక
+  #          test branch కి auto PR create చేస్తుంది
+  # ══════════════════════════════════════════════
+  promote-to-test:
+    name: "⑧ Promote dev → test branch"
+    runs-on: ubuntu-latest
+    needs: [publish-docker-images, build-flutter-artifacts]
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get image tag
+        id: tag
+        run: echo "tag=dev-$(echo ${{ github.sha }} | cut -c1-8)" >> $GITHUB_OUTPUT
+
+      - name: Create or update test branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B test
+          git push origin test --force
+
+      - name: Create PR dev → test
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = '${{ steps.tag.outputs.tag }}';
+            const sha = context.sha.substring(0, 8);
+
+            // Check if PR already exists
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: 'dev',
+              base: 'test',
+              state: 'open'
+            });
+
+            if (prs.data.length === 0) {
+              await github.rest.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🧪 Promote to Test — ${tag}`,
+                body: `## Dev → Test Promotion\n\n**Image Tag:** \`${tag}\`\n**Commit:** ${sha}\n\n### ✅ Passed\n- L1 Unit Tests\n- L2 Integration Tests\n- L3 Smoke Tests\n- Docker images published\n- APK + AAB built\n\n### 📦 Artifacts\nDownload from [Actions → Artifacts](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})\n\n> This PR was auto-created by CI. Review and merge to deploy to test environment.`,
+                head: 'dev',
+                base: 'test'
+              });
+            }

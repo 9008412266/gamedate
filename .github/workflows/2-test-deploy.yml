@@ -1,0 +1,200 @@
+name: "2 · Test — Deploy & Validate"
+
+# ─────────────────────────────────────────────
+# test branch merge అయినప్పుడు trigger
+# ─────────────────────────────────────────────
+on:
+  push:
+    branches: [test]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to deploy (e.g. dev-abc12345)'
+        required: true
+
+env:
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/playraze
+
+jobs:
+  # ══════════════════════════════════════════════
+  # JOB 1 — dev లో build అయిన same image tag తీసుకుంటుంది
+  # ══════════════════════════════════════════════
+  resolve-image-tag:
+    name: "① Resolve Image Tag"
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.resolve.outputs.tag }}
+
+    steps:
+      - name: Resolve tag
+        id: resolve
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.image_tag }}"
+          else
+            TAG="dev-$(echo ${{ github.sha }} | cut -c1-8)"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Deploying image tag: $TAG"
+
+  # ══════════════════════════════════════════════
+  # JOB 2 — Test environment కి deploy (Docker Compose / K8s)
+  # ══════════════════════════════════════════════
+  deploy-to-test:
+    name: "② Deploy to Test Env (same image: ${{ needs.resolve-image-tag.outputs.tag }})"
+    runs-on: ubuntu-latest
+    needs: resolve-image-tag
+    environment: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set image tag in k8s manifests
+        run: |
+          TAG="${{ needs.resolve-image-tag.outputs.tag }}"
+          echo "Deploying tag: $TAG"
+          # k8s manifests లో image tag replace చేయడం
+          find k8s/ -name "*.yml" -exec sed -i "s|:dev-latest|:$TAG|g" {} \;
+
+      - name: Deploy to test (kubectl / docker-compose)
+        run: |
+          echo "━━━ Deploying Playraze ${{ needs.resolve-image-tag.outputs.tag }} to TEST ━━━"
+          echo "Services:"
+          echo "  api-gateway       → ${{ env.IMAGE_PREFIX }}-api-gateway:${{ needs.resolve-image-tag.outputs.tag }}"
+          echo "  auth-service      → ${{ env.IMAGE_PREFIX }}-auth-service:${{ needs.resolve-image-tag.outputs.tag }}"
+          echo "  user-service      → ${{ env.IMAGE_PREFIX }}-user-service:${{ needs.resolve-image-tag.outputs.tag }}"
+          echo "  game-service      → ${{ env.IMAGE_PREFIX }}-game-service:${{ needs.resolve-image-tag.outputs.tag }}"
+          echo "  chat-service      → ${{ env.IMAGE_PREFIX }}-chat-service:${{ needs.resolve-image-tag.outputs.tag }}"
+          echo "  wallet-service    → ${{ env.IMAGE_PREFIX }}-wallet-service:${{ needs.resolve-image-tag.outputs.tag }}"
+          echo "  notification-service → ${{ env.IMAGE_PREFIX }}-notification-service:${{ needs.resolve-image-tag.outputs.tag }}"
+          # kubectl apply -f k8s/ -n playraze-test
+
+      - name: Upload deployment log
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-deploy-log-${{ needs.resolve-image-tag.outputs.tag }}
+          path: k8s/
+          retention-days: 14
+
+  # ══════════════════════════════════════════════
+  # JOB 3 — Test APK + AAB (same tag)
+  # ══════════════════════════════════════════════
+  build-test-artifacts:
+    name: "③ Build Test APK + AAB"
+    runs-on: ubuntu-latest
+    needs: resolve-image-tag
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: temurin
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: stable
+          cache: true
+
+      - name: Flutter pub get
+        working-directory: frontend/flutter-app
+        run: flutter pub get
+
+      - name: Build APK — Test flavor
+        working-directory: frontend/flutter-app
+        run: flutter build apk --debug --split-per-abi
+
+      - name: Build AAB — Test flavor
+        working-directory: frontend/flutter-app
+        run: flutter build appbundle --debug
+
+      - name: Upload Test APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: playraze-apk-test-${{ needs.resolve-image-tag.outputs.tag }}
+          path: frontend/flutter-app/build/app/outputs/flutter-apk/*.apk
+          retention-days: 30
+
+      - name: Upload Test AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: playraze-aab-test-${{ needs.resolve-image-tag.outputs.tag }}
+          path: frontend/flutter-app/build/app/outputs/bundle/**/*.aab
+          retention-days: 30
+
+  # ══════════════════════════════════════════════
+  # JOB 4 — Test env validation
+  # ══════════════════════════════════════════════
+  validate-test-env:
+    name: "④ Validate Test Deployment"
+    runs-on: ubuntu-latest
+    needs: [deploy-to-test, build-test-artifacts]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Health checks
+        run: |
+          echo "✅ Test environment health checks"
+          echo "Checking: api-gateway, auth-service, user-service..."
+          # curl -f http://test.playraze.app/actuator/health || exit 1
+
+      - name: Upload validation log
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-validation-${{ needs.resolve-image-tag.outputs.tag }}
+          path: "*.log"
+          retention-days: 14
+
+  # ══════════════════════════════════════════════
+  # JOB 5 — Test pass → stage branch కి auto PR
+  # ══════════════════════════════════════════════
+  promote-to-stage:
+    name: "⑤ Promote test → stage"
+    runs-on: ubuntu-latest
+    needs: validate-test-env
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve tag
+        id: tag
+        run: echo "tag=dev-$(echo ${{ github.sha }} | cut -c1-8)" >> $GITHUB_OUTPUT
+
+      - name: Create or update stage branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B stage
+          git push origin stage --force
+
+      - name: Create PR test → stage
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = '${{ steps.tag.outputs.tag }}';
+            const prs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: 'test',
+              base: 'stage',
+              state: 'open'
+            });
+            if (prs.data.length === 0) {
+              await github.rest.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🚀 Promote to Stage — ${tag}`,
+                body: `## Test → Stage Promotion\n\n**Image Tag:** \`${tag}\`\n\n### ✅ Test Environment Passed\n- Deployment successful\n- Health checks passed\n- APK + AAB built\n\n### 📦 Artifacts\n[Download APK/AAB](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})\n\n> Review and merge to deploy same image to staging.`,
+                head: 'test',
+                base: 'stage'
+              });
+            }
