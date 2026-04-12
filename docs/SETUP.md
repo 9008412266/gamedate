@@ -1,4 +1,4 @@
-# 🚀 GameDate Platform — Setup Guide
+# 🚀 Playraze Platform — Setup Guide
 
 ## Prerequisites
 
@@ -19,8 +19,8 @@
 ### 1. Clone & Setup
 
 ```bash
-git clone https://github.com/your-org/gamedate.git
-cd gamedate
+git clone https://github.com/your-org/playraze.git
+cd playraze
 
 # Copy env template
 cp .env.example .env
@@ -87,13 +87,13 @@ docker-compose down
 
 ```bash
 # Connect to PostgreSQL
-psql -h localhost -U gamedate -d gamedate
+psql -h localhost -U playraze -d playraze
 
 # Run seed data
 \i database/seeds/V2__sample_data.sql
 
 # Or with psql directly:
-PGPASSWORD=gamedate123 psql -h localhost -U gamedate -d gamedate \
+PGPASSWORD=playraze123 psql -h localhost -U playraze -d playraze \
   -f database/seeds/V2__sample_data.sql
 ```
 
@@ -123,9 +123,9 @@ Create `.env` in project root:
 
 ```env
 # Database
-DB_URL=jdbc:postgresql://localhost:5432/gamedate
-DB_USERNAME=gamedate
-DB_PASSWORD=gamedate123
+DB_URL=jdbc:postgresql://localhost:5432/playraze
+DB_USERNAME=playraze
+DB_PASSWORD=playraze123
 
 # Redis
 REDIS_HOST=localhost
@@ -140,20 +140,20 @@ MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=your-email@gmail.com
 MAIL_PASSWORD=your-app-password
-MAIL_FROM=noreply@gamedate.app
+MAIL_FROM=noreply@playraze.app
 
 # AWS (for S3 media storage)
 AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=your-access-key
 AWS_SECRET_ACCESS_KEY=your-secret-key
-AWS_S3_BUCKET=gamedate-media-dev
+AWS_S3_BUCKET=playraze-media-dev
 AWS_CLOUDFRONT_DOMAIN=your-cloudfront-domain.cloudfront.net
 
 # Firebase (for push notifications)
 FCM_SERVER_KEY=your-fcm-server-key
 
 # Frontend
-FRONTEND_URL=https://gamedate.app
+FRONTEND_URL=https://playraze.app
 ```
 
 ---
@@ -183,7 +183,7 @@ aws configure
 brew install terraform
 
 # Create S3 bucket for Terraform state
-aws s3 mb s3://gamedate-terraform-state --region us-east-1
+aws s3 mb s3://playraze-terraform-state --region us-east-1
 ```
 
 ### 1. Create ECR Repositories
@@ -191,7 +191,7 @@ aws s3 mb s3://gamedate-terraform-state --region us-east-1
 ```bash
 services=("api-gateway" "auth-service" "user-service" "game-service" "chat-service" "wallet-service" "notification-service")
 for service in "${services[@]}"; do
-  aws ecr create-repository --repository-name "gamedate-$service" --region us-east-1
+  aws ecr create-repository --repository-name "playraze-$service" --region us-east-1
 done
 ```
 
@@ -275,8 +275,8 @@ genhtml coverage/lcov.info -o coverage/html
 cd frontend/flutter-app
 
 # Generate signing key (first time only)
-keytool -genkey -v -keystore android/app/gamedate.keystore \
-  -keyalg RSA -keysize 2048 -validity 10000 -alias gamedate
+keytool -genkey -v -keystore android/app/playraze.keystore \
+  -keyalg RSA -keysize 2048 -validity 10000 -alias playraze
 
 # Build release APK
 flutter build apk --release
@@ -308,7 +308,7 @@ docker-compose logs -f auth-service
 redis-cli -h localhost -a redis123 monitor
 
 # PostgreSQL active connections
-psql -h localhost -U gamedate -c "SELECT * FROM pg_stat_activity;"
+psql -h localhost -U playraze -c "SELECT * FROM pg_stat_activity;"
 
 # Check game state in Redis
 redis-cli -h localhost -a redis123 keys "game:state:*"

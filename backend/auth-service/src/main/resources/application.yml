@@ -3,9 +3,9 @@ spring:
     name: auth-service
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/gamedate}
-    username: ${DB_USERNAME:gamedate}
-    password: ${DB_PASSWORD:gamedate123}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/playraze}
+    username: ${DB_USERNAME:playraze}
+    password: ${DB_PASSWORD:playraze123}
     hikari:
       maximum-pool-size: 20
       minimum-idle: 5
@@ -63,8 +63,8 @@ jwt:
 
 app:
   mail:
-    from: ${MAIL_FROM:noreply@gamedate.app}
-  frontend-url: ${FRONTEND_URL:https://gamedate.app}
+    from: ${MAIL_FROM:noreply@playraze.app}
+  frontend-url: ${FRONTEND_URL:https://playraze.app}
 
 springdoc:
   api-docs:
@@ -84,5 +84,5 @@ management:
 
 logging:
   level:
-    com.gamedate: INFO
+    com.playraze: INFO
     org.springframework.security: WARN

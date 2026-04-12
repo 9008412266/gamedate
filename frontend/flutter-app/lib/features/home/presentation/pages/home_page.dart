@@ -46,7 +46,7 @@ class HomePage extends StatelessWidget {
       backgroundColor: AppTheme.darkSurface,
       title: ShaderMask(
         shaderCallback: (b) => AppTheme.primaryGradient.createShader(b),
-        child: const Text('GameDate',
+        child: const Text('Playraze',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
       ),
       actions: [

@@ -98,7 +98,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                 const SizedBox(height: 16),
                                 ShaderMask(
                                   shaderCallback: (b) => AppTheme.primaryGradient.createShader(b),
-                                  child: const Text('GameDate',
+                                  child: const Text('Playraze',
                                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)),
                                 ),
                                 const SizedBox(height: 6),

@@ -1,4 +1,4 @@
-name: GameDate CI/CD Pipeline
+name: Playraze CI/CD Pipeline
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 env:
   AWS_REGION: us-east-1
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
-  ECS_CLUSTER: gamedate-cluster
+  ECS_CLUSTER: playraze-cluster
 
 jobs:
   # ──────────────────────────────────────────────────────────
@@ -23,9 +23,9 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: gamedate_test
-          POSTGRES_USER: gamedate
-          POSTGRES_PASSWORD: gamedate123
+          POSTGRES_DB: playraze_test
+          POSTGRES_USER: playraze
+          POSTGRES_PASSWORD: playraze123
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -58,9 +58,9 @@ jobs:
         working-directory: backend/auth-service
         run: mvn test -B
         env:
-          DB_URL: jdbc:postgresql://localhost:5432/gamedate_test
-          DB_USERNAME: gamedate
-          DB_PASSWORD: gamedate123
+          DB_URL: jdbc:postgresql://localhost:5432/playraze_test
+          DB_USERNAME: playraze
+          DB_PASSWORD: playraze123
           REDIS_HOST: localhost
           JWT_SECRET: dGVzdC1qd3Qtc2VjcmV0LWtleS1mb3ItdGVzdGluZy1vbmx5LW1pbmltdW0tMzItY2hhcnM=
 
@@ -68,9 +68,9 @@ jobs:
         working-directory: backend/game-service
         run: mvn test -B
         env:
-          DB_URL: jdbc:postgresql://localhost:5432/gamedate_test
-          DB_USERNAME: gamedate
-          DB_PASSWORD: gamedate123
+          DB_URL: jdbc:postgresql://localhost:5432/playraze_test
+          DB_USERNAME: playraze
+          DB_PASSWORD: playraze123
           REDIS_HOST: localhost
           JWT_SECRET: dGVzdC1qd3Qtc2VjcmV0LWtleS1mb3ItdGVzdGluZy1vbmx5LW1pbmltdW0tMzItY2hhcnM=
 
@@ -172,8 +172,8 @@ jobs:
           context: ${{ matrix.service.context }}
           push: true
           tags: |
-            ${{ env.ECR_REGISTRY }}/gamedate-${{ matrix.service.name }}:${{ github.sha }}
-            ${{ env.ECR_REGISTRY }}/gamedate-${{ matrix.service.name }}:latest
+            ${{ env.ECR_REGISTRY }}/playraze-${{ matrix.service.name }}:${{ github.sha }}
+            ${{ env.ECR_REGISTRY }}/playraze-${{ matrix.service.name }}:latest
           cache-from: type=gha,scope=${{ matrix.service.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.service.name }}
 
@@ -203,8 +203,8 @@ jobs:
           for service in "${services[@]}"; do
             echo "Deploying $service to staging..."
             aws ecs update-service \
-              --cluster gamedate-staging \
-              --service "gamedate-$service" \
+              --cluster playraze-staging \
+              --service "playraze-$service" \
               --force-new-deployment \
               --region ${{ env.AWS_REGION }}
           done
@@ -214,8 +214,8 @@ jobs:
           services=("api-gateway" "auth-service" "user-service" "game-service" "chat-service" "wallet-service" "notification-service")
           for service in "${services[@]}"; do
             aws ecs wait services-stable \
-              --cluster gamedate-staging \
-              --services "gamedate-$service" \
+              --cluster playraze-staging \
+              --services "playraze-$service" \
               --region ${{ env.AWS_REGION }}
             echo "$service deployed successfully"
           done
@@ -245,7 +245,7 @@ jobs:
           # Run Flyway migrations via one-off ECS task
           aws ecs run-task \
             --cluster ${{ env.ECS_CLUSTER }} \
-            --task-definition gamedate-migration \
+            --task-definition playraze-migration \
             --launch-type FARGATE \
             --network-configuration "awsvpcConfiguration={subnets=[${{ secrets.PRIVATE_SUBNET_IDS }}],securityGroups=[${{ secrets.ECS_SECURITY_GROUP }}]}"
 
@@ -256,7 +256,7 @@ jobs:
             echo "Deploying $service to production..."
             aws ecs update-service \
               --cluster ${{ env.ECS_CLUSTER }} \
-              --service "gamedate-$service" \
+              --service "playraze-$service" \
               --force-new-deployment \
               --deployment-configuration "minimumHealthyPercent=50,maximumPercent=200" \
               --region ${{ env.AWS_REGION }}
@@ -267,7 +267,7 @@ jobs:
         uses: 8398a7/action-slack@v3
         with:
           status: success
-          text: '🚀 GameDate deployed to production! SHA: ${{ github.sha }}'
+          text: '🚀 Playraze deployed to production! SHA: ${{ github.sha }}'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
@@ -276,6 +276,6 @@ jobs:
         uses: 8398a7/action-slack@v3
         with:
           status: failure
-          text: '❌ GameDate production deployment FAILED! SHA: ${{ github.sha }}'
+          text: '❌ Playraze production deployment FAILED! SHA: ${{ github.sha }}'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

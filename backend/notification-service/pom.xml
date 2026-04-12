@@ -10,7 +10,7 @@
         <version>3.2.3</version>
     </parent>
 
-    <groupId>com.gamedate</groupId>
+    <groupId>com.playraze</groupId>
     <artifactId>notification-service</artifactId>
     <version>1.0.0</version>
 
@@ -20,7 +20,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.gamedate</groupId>
+            <groupId>com.playraze</groupId>
             <artifactId>common-lib</artifactId>
             <version>1.0.0</version>
         </dependency>

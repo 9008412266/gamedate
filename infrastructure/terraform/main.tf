@@ -1,5 +1,5 @@
 ################################################################################
-# GameDate Platform — AWS Infrastructure (Terraform)
+# Playraze Platform — AWS Infrastructure (Terraform)
 # Provisions: VPC, ECS Cluster, RDS, ElastiCache, S3, CloudFront, ALB
 ################################################################################
 
@@ -13,7 +13,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "gamedate-terraform-state"
+    bucket = "playraze-terraform-state"
     key    = "production/terraform.tfstate"
     region = "us-east-1"
   }
@@ -26,7 +26,7 @@ provider "aws" {
 # ── Variables ────────────────────────────────────────────────
 variable "aws_region"       { default = "us-east-1" }
 variable "environment"      { default = "production" }
-variable "app_name"         { default = "gamedate" }
+variable "app_name"         { default = "playraze" }
 variable "db_password"      { sensitive = true }
 variable "jwt_secret"       { sensitive = true }
 
@@ -78,7 +78,7 @@ resource "aws_cloudfront_origin_access_control" "media" {
 resource "aws_cloudfront_distribution" "media" {
   enabled         = true
   is_ipv6_enabled = true
-  comment         = "GameDate Media CDN"
+  comment         = "Playraze Media CDN"
 
   origin {
     domain_name              = aws_s3_bucket.media.bucket_regional_domain_name
@@ -142,8 +142,8 @@ resource "aws_db_instance" "postgres" {
   storage_type          = "gp3"
   storage_encrypted     = true
 
-  db_name  = "gamedate"
-  username = "gamedate"
+  db_name  = "playraze"
+  username = "playraze"
   password = var.db_password
 
   db_subnet_group_name   = aws_db_subnet_group.main.name
@@ -171,7 +171,7 @@ resource "aws_elasticache_subnet_group" "main" {
 
 resource "aws_elasticache_replication_group" "redis" {
   replication_group_id       = "${var.app_name}-redis"
-  description                = "GameDate Redis Cluster"
+  description                = "Playraze Redis Cluster"
   node_type                  = "cache.t3.medium"
   num_cache_clusters         = 2  # Primary + 1 replica
   parameter_group_name       = "default.redis7"

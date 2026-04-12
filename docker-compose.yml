@@ -1,7 +1,7 @@
 version: '3.9'
 
 # ============================================================
-# GameDate Platform — Local Development Docker Compose
+# Playraze Platform — Local Development Docker Compose
 # ============================================================
 # Usage:
 #   docker-compose up -d                  # Start all services
@@ -11,7 +11,7 @@ version: '3.9'
 # ============================================================
 
 networks:
-  gamedate-network:
+  playraze-network:
     driver: bridge
 
 volumes:
@@ -24,34 +24,34 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: gamedate-postgres
+    container_name: playraze-postgres
     environment:
-      POSTGRES_DB: gamedate
-      POSTGRES_USER: gamedate
-      POSTGRES_PASSWORD: gamedate123
+      POSTGRES_DB: playraze
+      POSTGRES_USER: playraze
+      POSTGRES_PASSWORD: playraze123
     ports:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./database/migrations:/docker-entrypoint-initdb.d
     networks:
-      - gamedate-network
+      - playraze-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U gamedate"]
+      test: ["CMD-SHELL", "pg_isready -U playraze"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: gamedate-redis
+    container_name: playraze-redis
     command: redis-server --requirepass redis123 --maxmemory 512mb --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/data
     networks:
-      - gamedate-network
+      - playraze-network
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "redis123", "ping"]
       interval: 10s
@@ -64,7 +64,7 @@ services:
     build:
       context: ./backend/api-gateway
       dockerfile: Dockerfile
-    container_name: gamedate-gateway
+    container_name: playraze-gateway
     ports:
       - "8080:8080"
     environment:
@@ -82,20 +82,20 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - gamedate-network
+      - playraze-network
     restart: unless-stopped
 
   auth-service:
     build:
       context: ./backend/auth-service
       dockerfile: Dockerfile
-    container_name: gamedate-auth
+    container_name: playraze-auth
     ports:
       - "8081:8081"
     environment:
-      DB_URL: jdbc:postgresql://postgres:5432/gamedate
-      DB_USERNAME: gamedate
-      DB_PASSWORD: gamedate123
+      DB_URL: jdbc:postgresql://postgres:5432/playraze
+      DB_USERNAME: playraze
+      DB_PASSWORD: playraze123
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: redis123
@@ -113,7 +113,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - gamedate-network
+      - playraze-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1"]
@@ -125,38 +125,38 @@ services:
     build:
       context: ./backend/user-service
       dockerfile: Dockerfile
-    container_name: gamedate-user
+    container_name: playraze-user
     ports:
       - "8082:8082"
     environment:
-      DB_URL: jdbc:postgresql://postgres:5432/gamedate
-      DB_USERNAME: gamedate
-      DB_PASSWORD: gamedate123
+      DB_URL: jdbc:postgresql://postgres:5432/playraze
+      DB_USERNAME: playraze
+      DB_PASSWORD: playraze123
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: redis123
       JWT_SECRET: ${JWT_SECRET:-dGhpcyBpcyBhIHZlcnkgbG9uZyBzZWNyZXQga2V5IGZvciBqd3QgdG9rZW4gc2lnbmluZw==}
       AWS_REGION: ${AWS_REGION:-us-east-1}
-      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-gamedate-media-dev}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-playraze-media-dev}
       AWS_CLOUDFRONT_DOMAIN: ${AWS_CLOUDFRONT_DOMAIN:-localhost}
     depends_on:
       postgres:
         condition: service_healthy
     networks:
-      - gamedate-network
+      - playraze-network
     restart: unless-stopped
 
   game-service:
     build:
       context: ./backend/game-service
       dockerfile: Dockerfile
-    container_name: gamedate-game
+    container_name: playraze-game
     ports:
       - "8083:8083"
     environment:
-      DB_URL: jdbc:postgresql://postgres:5432/gamedate
-      DB_USERNAME: gamedate
-      DB_PASSWORD: gamedate123
+      DB_URL: jdbc:postgresql://postgres:5432/playraze
+      DB_USERNAME: playraze
+      DB_PASSWORD: playraze123
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: redis123
@@ -167,20 +167,20 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - gamedate-network
+      - playraze-network
     restart: unless-stopped
 
   chat-service:
     build:
       context: ./backend/chat-service
       dockerfile: Dockerfile
-    container_name: gamedate-chat
+    container_name: playraze-chat
     ports:
       - "8084:8084"
     environment:
-      DB_URL: jdbc:postgresql://postgres:5432/gamedate
-      DB_USERNAME: gamedate
-      DB_PASSWORD: gamedate123
+      DB_URL: jdbc:postgresql://postgres:5432/playraze
+      DB_USERNAME: playraze
+      DB_PASSWORD: playraze123
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: redis123
@@ -191,20 +191,20 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - gamedate-network
+      - playraze-network
     restart: unless-stopped
 
   wallet-service:
     build:
       context: ./backend/wallet-service
       dockerfile: Dockerfile
-    container_name: gamedate-wallet
+    container_name: playraze-wallet
     ports:
       - "8085:8085"
     environment:
-      DB_URL: jdbc:postgresql://postgres:5432/gamedate
-      DB_USERNAME: gamedate
-      DB_PASSWORD: gamedate123
+      DB_URL: jdbc:postgresql://postgres:5432/playraze
+      DB_USERNAME: playraze
+      DB_PASSWORD: playraze123
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: redis123
@@ -213,20 +213,20 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - gamedate-network
+      - playraze-network
     restart: unless-stopped
 
   notification-service:
     build:
       context: ./backend/notification-service
       dockerfile: Dockerfile
-    container_name: gamedate-notification
+    container_name: playraze-notification
     ports:
       - "8086:8086"
     environment:
-      DB_URL: jdbc:postgresql://postgres:5432/gamedate
-      DB_USERNAME: gamedate
-      DB_PASSWORD: gamedate123
+      DB_URL: jdbc:postgresql://postgres:5432/playraze
+      DB_USERNAME: playraze
+      DB_PASSWORD: playraze123
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: redis123
@@ -238,13 +238,13 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - gamedate-network
+      - playraze-network
     restart: unless-stopped
 
   # ── NGINX REVERSE PROXY (optional for local SSL) ──────────
   nginx:
     image: nginx:alpine
-    container_name: gamedate-nginx
+    container_name: playraze-nginx
     ports:
       - "80:80"
       - "443:443"
@@ -253,6 +253,6 @@ services:
     depends_on:
       - api-gateway
     networks:
-      - gamedate-network
+      - playraze-network
     profiles:
       - production  # Only start with: docker-compose --profile production up

@@ -1,4 +1,4 @@
-# 🎮❤️ GameDate Platform
+# 🎮❤️ Playraze Platform
 
 > **Play Together, Connect Together** — A social gaming + dating app where you can play Ludo, Chess, and Billiards, match with people, chat, and make real connections.
 

@@ -11,7 +11,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.gamedate</groupId>
+    <groupId>com.playraze</groupId>
     <artifactId>auth-service</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
@@ -23,7 +23,7 @@
     <dependencies>
         <!-- Common Library -->
         <dependency>
-            <groupId>com.gamedate</groupId>
+            <groupId>com.playraze</groupId>
             <artifactId>common-lib</artifactId>
             <version>1.0.0</version>
         </dependency>

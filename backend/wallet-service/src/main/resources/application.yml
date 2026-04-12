@@ -3,9 +3,9 @@ spring:
     name: wallet-service
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/gamedate}
-    username: ${DB_USERNAME:gamedate}
-    password: ${DB_PASSWORD:gamedate123}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/playraze}
+    username: ${DB_USERNAME:playraze}
+    password: ${DB_PASSWORD:playraze123}
     hikari:
       maximum-pool-size: 15
 
@@ -49,4 +49,4 @@ management:
 
 logging:
   level:
-    com.gamedate: DEBUG
+    com.playraze: DEBUG

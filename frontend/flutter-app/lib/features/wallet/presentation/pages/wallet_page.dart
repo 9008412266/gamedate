@@ -104,7 +104,7 @@ class WalletPage extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('GameDate Premium',
+                              const Text('Playraze Premium',
                                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
                               Text('Unlimited likes, boosts & more',
                                 style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 12)),

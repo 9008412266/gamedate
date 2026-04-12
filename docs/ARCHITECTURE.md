@@ -1,8 +1,8 @@
-# 🏗️ System Architecture — GameDate Platform
+# 🏗️ System Architecture — Playraze Platform
 
 ## Overview
 
-GameDate is a social gaming + dating platform built on microservices, capable of
+Playraze is a social gaming + dating platform built on microservices, capable of
 serving millions of concurrent users. Below is the complete architectural blueprint.
 
 ---
@@ -174,6 +174,6 @@ VPC
 │   └── ElastiCache Redis (Cluster Mode)
 │
 └── S3 Buckets
-    ├── gamedate-media (profile photos, game assets)
-    └── gamedate-backups (DB backups)
+    ├── playraze-media (profile photos, game assets)
+    └── playraze-backups (DB backups)
 ```

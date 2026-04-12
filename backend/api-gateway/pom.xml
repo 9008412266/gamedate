@@ -10,7 +10,7 @@
         <version>3.2.3</version>
     </parent>
 
-    <groupId>com.gamedate</groupId>
+    <groupId>com.playraze</groupId>
     <artifactId>api-gateway</artifactId>
     <version>1.0.0</version>
 
@@ -22,7 +22,7 @@
     <dependencyManagement>
         <dependencies>
         <dependency>
-            <groupId>com.gamedate</groupId>
+            <groupId>com.playraze</groupId>
             <artifactId>common-lib</artifactId>
             <version>1.0.0</version>
         </dependency>
@@ -38,7 +38,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.gamedate</groupId>
+            <groupId>com.playraze</groupId>
             <artifactId>common-lib</artifactId>
             <version>1.0.0</version>
         </dependency>

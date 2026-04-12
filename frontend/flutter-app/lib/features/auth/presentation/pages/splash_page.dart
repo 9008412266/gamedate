@@ -93,7 +93,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
                     const SizedBox(height: 24),
                     ShaderMask(
                       shaderCallback: (b) => AppTheme.primaryGradient.createShader(b),
-                      child: const Text('GameDate',
+                      child: const Text('Playraze',
                         style: TextStyle(fontSize: 42, fontWeight: FontWeight.bold, color: Colors.white)),
                     ),
                     const SizedBox(height: 8),

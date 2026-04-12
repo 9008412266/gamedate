@@ -28,11 +28,11 @@ void main() async {
   await Hive.initFlutter();
   await di.init(); // Dependency injection
 
-  runApp(const GameDateApp());
+  runApp(const PlayrazeApp());
 }
 
-class GameDateApp extends StatelessWidget {
-  const GameDateApp({super.key});
+class PlayrazeApp extends StatelessWidget {
+  const PlayrazeApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,7 @@ class GameDateApp extends StatelessWidget {
       child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, authState) {
           return MaterialApp.router(
-            title: 'GameDate',
+            title: 'Playraze',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
