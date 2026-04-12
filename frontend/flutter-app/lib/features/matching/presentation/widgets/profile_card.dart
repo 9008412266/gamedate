@@ -29,7 +29,7 @@ class _ProfileCardState extends State<ProfileCard> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 20, offset: const Offset(0, 8)),
         ],
       ),
@@ -79,7 +79,7 @@ class _ProfileCardState extends State<ProfileCard> {
                       decoration: BoxDecoration(
                         color: i <= _currentPhotoIndex
                             ? Colors.white
-                            : Colors.white.withOpacity(0.4),
+                            : Colors.white.withValues(alpha: 0.4),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -97,8 +97,8 @@ class _ProfileCardState extends State<ProfileCard> {
                     colors: [
                       Colors.transparent,
                       Colors.transparent,
-                      Colors.black.withOpacity(0.7),
-                      Colors.black.withOpacity(0.95),
+                      Colors.black.withValues(alpha: 0.7),
+                      Colors.black.withValues(alpha: 0.95),
                     ],
                     stops: const [0.0, 0.5, 0.75, 1.0],
                   ),
@@ -214,9 +214,9 @@ class _InterestChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
+        color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.3)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
       ),
       child: Text(label,
           style: const TextStyle(color: Colors.white, fontSize: 12)),

@@ -95,7 +95,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                       const Text('👋', style: TextStyle(fontSize: 48)),
                       const SizedBox(height: 12),
                       Text('Say hello!',
-                        style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 16)),
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 16)),
                     ],
                   ),
                 )
@@ -126,7 +126,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 gradient: isMe ? AppTheme.primaryGradient : null,
-                color: isMe ? null : Colors.white.withOpacity(0.08),
+                color: isMe ? null : Colors.white.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(18),
                   topRight: const Radius.circular(18),
@@ -134,7 +134,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                   bottomRight: Radius.circular(isMe ? 4 : 18),
                 ),
                 boxShadow: isMe ? [BoxShadow(
-                  color: AppTheme.primaryPink.withOpacity(0.2),
+                  color: AppTheme.primaryPink.withValues(alpha: 0.2),
                   blurRadius: 8, offset: const Offset(0, 2),
                 )] : null,
               ),
@@ -143,7 +143,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
             ),
             const SizedBox(height: 2),
             Text(msg['time'] as String,
-              style: TextStyle(color: Colors.white.withOpacity(0.28), fontSize: 10)),
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.28), fontSize: 10)),
           ],
         ),
       ),
@@ -154,27 +154,27 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
     decoration: BoxDecoration(
       color: AppTheme.darkSurface,
-      border: Border(top: BorderSide(color: Colors.white.withOpacity(0.06))),
+      border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.06))),
     ),
     child: Row(
       children: [
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.07),
+              color: Colors.white.withValues(alpha: 0.07),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white.withOpacity(0.08)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
             ),
             child: TextField(
               controller: _msgCtrl,
               style: const TextStyle(color: Colors.white, fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Type a message...',
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 14),
+                hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 14),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 prefixIcon: Icon(Icons.emoji_emotions_outlined,
-                  color: Colors.white.withOpacity(0.3), size: 20),
+                  color: Colors.white.withValues(alpha: 0.3), size: 20),
               ),
             ),
           ),
@@ -188,7 +188,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
               gradient: AppTheme.primaryGradient,
               shape: BoxShape.circle,
               boxShadow: [BoxShadow(
-                color: AppTheme.primaryPink.withOpacity(0.3),
+                color: AppTheme.primaryPink.withValues(alpha: 0.3),
                 blurRadius: 10, offset: const Offset(0, 2),
               )],
             ),

@@ -55,9 +55,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         child: Stack(
           children: [
             Positioned(top: -60, right: -60,
-              child: _glowCircle(200, AppTheme.primaryPink.withOpacity(0.12))),
+              child: _glowCircle(200, AppTheme.primaryPink.withValues(alpha: 0.12))),
             Positioned(bottom: -80, left: -60,
-              child: _glowCircle(220, AppTheme.primaryPurple.withOpacity(0.1))),
+              child: _glowCircle(220, AppTheme.primaryPurple.withValues(alpha: 0.1))),
             SafeArea(
               child: BlocListener<AuthBloc, AuthState>(
                 listener: (context, state) {
@@ -89,7 +89,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                     shape: BoxShape.circle,
                                     gradient: AppTheme.primaryGradient,
                                     boxShadow: [BoxShadow(
-                                      color: AppTheme.primaryPink.withOpacity(0.4),
+                                      color: AppTheme.primaryPink.withValues(alpha: 0.4),
                                       blurRadius: 24, spreadRadius: 2,
                                     )],
                                   ),
@@ -103,7 +103,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                 ),
                                 const SizedBox(height: 6),
                                 Text('Play Together, Connect Together',
-                                  style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 13)),
+                                  style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 13)),
                               ],
                             ),
                           ),
@@ -112,7 +112,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                             style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 6),
                           Text('Sign in to continue playing',
-                            style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 13)),
+                            style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 13)),
                           const SizedBox(height: 32),
                           Form(
                             key: _formKey,
@@ -162,12 +162,12 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                           const SizedBox(height: 28),
                           Row(
                             children: [
-                              Expanded(child: Divider(color: Colors.white.withOpacity(0.12))),
+                              Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.12))),
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                                child: Text('or', style: TextStyle(color: Colors.white.withOpacity(0.35), fontSize: 13)),
+                                child: Text('or', style: TextStyle(color: Colors.white.withValues(alpha: 0.35), fontSize: 13)),
                               ),
-                              Expanded(child: Divider(color: Colors.white.withOpacity(0.12))),
+                              Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.12))),
                             ],
                           ),
                           const SizedBox(height: 20),
@@ -188,7 +188,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text("Don't have an account? ",
-                                  style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 14)),
+                                  style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 14)),
                                 GestureDetector(
                                   onTap: () => context.push('/auth/register'),
                                   child: const Text('Sign Up',
@@ -230,22 +230,22 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 14),
+        labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 14),
         prefixIcon: Icon(icon, color: Colors.white38, size: 20),
         suffixIcon: suffix,
         filled: true,
-        fillColor: Colors.white.withOpacity(0.06),
+        fillColor: Colors.white.withValues(alpha: 0.06),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppTheme.primaryPink.withOpacity(0.7), width: 1.5),
+          borderSide: BorderSide(color: AppTheme.primaryPink.withValues(alpha: 0.7), width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),

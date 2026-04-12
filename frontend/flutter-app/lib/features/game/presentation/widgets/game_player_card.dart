@@ -20,7 +20,7 @@ class GamePlayerCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isCurrentTurn ? AppTheme.primaryPink.withOpacity(0.2) : AppTheme.darkCard,
+        color: isCurrentTurn ? AppTheme.primaryPink.withValues(alpha: 0.2) : AppTheme.darkCard,
         borderRadius: BorderRadius.circular(12),
         border: isCurrentTurn ? Border.all(color: AppTheme.primaryPink) : null,
       ),

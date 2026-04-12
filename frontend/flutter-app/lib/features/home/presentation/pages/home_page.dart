@@ -88,7 +88,7 @@ class HomePage extends StatelessWidget {
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppTheme.primaryPink.withOpacity(0.3)),
+            border: Border.all(color: AppTheme.primaryPink.withValues(alpha: 0.3)),
           ),
           child: Row(
             children: [
@@ -100,7 +100,7 @@ class HomePage extends StatelessWidget {
                       style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
                     Text('Ready to play & connect?',
-                      style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 13)),
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 13)),
                     const SizedBox(height: 12),
                     GestureDetector(
                       onTap: () => context.go('/discover'),
@@ -122,7 +122,7 @@ class HomePage extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: AppTheme.primaryGradient,
-                  boxShadow: [BoxShadow(color: AppTheme.primaryPink.withOpacity(0.3), blurRadius: 15)],
+                  boxShadow: [BoxShadow(color: AppTheme.primaryPink.withValues(alpha: 0.3), blurRadius: 15)],
                 ),
                 child: const Icon(Icons.gamepad_rounded, color: Colors.white, size: 36),
               ),
@@ -147,9 +147,9 @@ class HomePage extends StatelessWidget {
             child: Container(
               height: 110,
               decoration: BoxDecoration(
-                color: (g['color'] as Color).withOpacity(0.15),
+                color: (g['color'] as Color).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: (g['color'] as Color).withOpacity(0.4)),
+                border: Border.all(color: (g['color'] as Color).withValues(alpha: 0.4)),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -158,7 +158,7 @@ class HomePage extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(g['name'] as String,
                     style: TextStyle(color: g['color'] as Color, fontWeight: FontWeight.bold, fontSize: 15)),
-                  Text('Play now', style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 11)),
+                  Text('Play now', style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 11)),
                 ],
               ),
             ),
@@ -180,7 +180,7 @@ class HomePage extends StatelessWidget {
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppTheme.accentGold.withOpacity(0.3)),
+          border: Border.all(color: AppTheme.accentGold.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
@@ -205,7 +205,7 @@ class HomePage extends StatelessWidget {
     decoration: BoxDecoration(
       color: AppTheme.darkCard,
       borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: Colors.white.withOpacity(0.05)),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
     ),
     child: Row(
       children: [
@@ -215,7 +215,7 @@ class HomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title, style: const TextStyle(color: Colors.white54, fontWeight: FontWeight.w500)),
-            Text(subtitle, style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 12)),
+            Text(subtitle, style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 12)),
           ],
         ),
       ],

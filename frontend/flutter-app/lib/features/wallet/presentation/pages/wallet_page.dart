@@ -47,9 +47,9 @@ class WalletPage extends StatelessWidget {
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: AppTheme.accentGold.withOpacity(0.35)),
+                      border: Border.all(color: AppTheme.accentGold.withValues(alpha: 0.35)),
                       boxShadow: [BoxShadow(
-                        color: AppTheme.accentGold.withOpacity(0.15),
+                        color: AppTheme.accentGold.withValues(alpha: 0.15),
                         blurRadius: 24, spreadRadius: 2,
                       )],
                     ),
@@ -61,14 +61,14 @@ class WalletPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         Text('Coin Balance',
-                          style: TextStyle(color: Colors.white.withOpacity(0.55), fontSize: 13)),
+                          style: TextStyle(color: Colors.white.withValues(alpha: 0.55), fontSize: 13)),
                         const SizedBox(height: 8),
                         ShaderMask(
                           shaderCallback: (b) => AppTheme.goldGradient.createShader(b),
                           child: const Text('0',
                             style: TextStyle(color: Colors.white, fontSize: 52, fontWeight: FontWeight.bold)),
                         ),
-                        Text('coins', style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 13)),
+                        Text('coins', style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 13)),
                         const SizedBox(height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -92,7 +92,7 @@ class WalletPage extends StatelessWidget {
                       gradient: AppTheme.primaryGradient,
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [BoxShadow(
-                        color: AppTheme.primaryPink.withOpacity(0.3),
+                        color: AppTheme.primaryPink.withValues(alpha: 0.3),
                         blurRadius: 16, offset: const Offset(0, 4),
                       )],
                     ),
@@ -107,7 +107,7 @@ class WalletPage extends StatelessWidget {
                               const Text('Playraze Premium',
                                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
                               Text('Unlimited likes, boosts & more',
-                                style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 12)),
+                                style: TextStyle(color: Colors.white.withValues(alpha: 0.75), fontSize: 12)),
                             ],
                           ),
                         ),
@@ -185,7 +185,7 @@ class WalletPage extends StatelessWidget {
   Widget _miniStat(String label, String value) => Column(
     children: [
       Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
-      Text(label, style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 11)),
+      Text(label, style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 11)),
     ],
   );
 
@@ -206,14 +206,14 @@ class WalletPage extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.darkSurface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withOpacity(0.07)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
         ),
         child: Row(
           children: [
             Container(
               width: 44, height: 44,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
+                color: color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 22),
@@ -231,7 +231,7 @@ class WalletPage extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF44FF88).withOpacity(0.15),
+                            color: const Color(0xFF44FF88).withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(badge,
@@ -240,16 +240,16 @@ class WalletPage extends StatelessWidget {
                       ],
                     ],
                   ),
-                  Text(subtitle, style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12)),
+                  Text(subtitle, style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 12)),
                 ],
               ),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
+                color: color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: color.withOpacity(0.3)),
+                border: Border.all(color: color.withValues(alpha: 0.3)),
               ),
               child: Text(reward, style: TextStyle(
                 color: color, fontWeight: FontWeight.bold, fontSize: 13)),

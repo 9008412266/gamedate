@@ -36,9 +36,9 @@ class ProfilePage extends StatelessWidget {
                     child: Stack(
                       children: [
                         Positioned(top: -40, right: -40,
-                          child: _glowCircle(160, AppTheme.primaryPink.withOpacity(0.12))),
+                          child: _glowCircle(160, AppTheme.primaryPink.withValues(alpha: 0.12))),
                         Positioned(bottom: -30, left: -30,
-                          child: _glowCircle(120, AppTheme.primaryPurple.withOpacity(0.1))),
+                          child: _glowCircle(120, AppTheme.primaryPurple.withValues(alpha: 0.1))),
                         Positioned.fill(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -50,7 +50,7 @@ class ProfilePage extends StatelessWidget {
                                   shape: BoxShape.circle,
                                   gradient: AppTheme.primaryGradient,
                                   boxShadow: [BoxShadow(
-                                    color: AppTheme.primaryPink.withOpacity(0.4),
+                                    color: AppTheme.primaryPink.withValues(alpha: 0.4),
                                     blurRadius: 20, spreadRadius: 2,
                                   )],
                                 ),
@@ -64,7 +64,7 @@ class ProfilePage extends StatelessWidget {
                                 color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                               const SizedBox(height: 4),
                               Text('@$username', style: TextStyle(
-                                color: Colors.white.withOpacity(0.5), fontSize: 13)),
+                                color: Colors.white.withValues(alpha: 0.5), fontSize: 13)),
                             ],
                           ),
                         ),
@@ -77,7 +77,7 @@ class ProfilePage extends StatelessWidget {
                     icon: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
+                        color: Colors.white.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.edit_outlined, color: Colors.white, size: 18),
@@ -98,7 +98,7 @@ class ProfilePage extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: AppTheme.darkSurface,
                           borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: Colors.white.withOpacity(0.07)),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
                         ),
                         child: Row(
                           children: [
@@ -170,7 +170,7 @@ class ProfilePage extends StatelessWidget {
     ),
   );
 
-  Widget _divider() => Container(width: 1, height: 40, color: Colors.white.withOpacity(0.08));
+  Widget _divider() => Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.08));
 
   Widget _sectionHeader(String title) => Align(
     alignment: Alignment.centerLeft,
@@ -181,9 +181,9 @@ class ProfilePage extends StatelessWidget {
   Widget _gameChip(String emoji, String name, Color color) => Container(
     padding: const EdgeInsets.symmetric(vertical: 12),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.12),
+      color: color.withValues(alpha: 0.12),
       borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: color.withOpacity(0.3)),
+      border: Border.all(color: color.withValues(alpha: 0.3)),
     ),
     child: Column(
       children: [
@@ -198,7 +198,7 @@ class ProfilePage extends StatelessWidget {
     decoration: BoxDecoration(
       color: AppTheme.darkSurface,
       borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: Colors.white.withOpacity(0.07)),
+      border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
     ),
     child: Column(children: children),
   );
@@ -214,7 +214,7 @@ class ProfilePage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
+                color: color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: color, size: 18),
@@ -227,7 +227,7 @@ class ProfilePage extends StatelessWidget {
       ),
     );
 
-  Widget _dividerLine() => Divider(height: 1, indent: 56, color: Colors.white.withOpacity(0.06));
+  Widget _dividerLine() => Divider(height: 1, indent: 56, color: Colors.white.withValues(alpha: 0.06));
 
   Widget _glowCircle(double size, Color color) => Container(
     width: size, height: size,

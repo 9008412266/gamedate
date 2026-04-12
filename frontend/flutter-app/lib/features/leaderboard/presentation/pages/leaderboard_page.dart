@@ -101,7 +101,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> with SingleTickerProv
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppTheme.accentGold.withOpacity(0.25)),
+        border: Border.all(color: AppTheme.accentGold.withValues(alpha: 0.25)),
       ),
       child: Column(
         children: [
@@ -139,7 +139,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> with SingleTickerProv
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(colors: c),
-            boxShadow: [BoxShadow(color: c[0].withOpacity(0.4), blurRadius: 16, spreadRadius: 2)],
+            boxShadow: [BoxShadow(color: c[0].withValues(alpha: 0.4), blurRadius: 16, spreadRadius: 2)],
           ),
           child: Center(child: Text(player['emoji'] as String,
             style: TextStyle(fontSize: size * 0.42))),
@@ -158,10 +158,10 @@ class _LeaderboardPageState extends State<LeaderboardPage> with SingleTickerProv
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isMe ? AppTheme.primaryPink.withOpacity(0.12) : AppTheme.darkSurface,
+        color: isMe ? AppTheme.primaryPink.withValues(alpha: 0.12) : AppTheme.darkSurface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isMe ? AppTheme.primaryPink.withOpacity(0.35) : Colors.white.withOpacity(0.06),
+          color: isMe ? AppTheme.primaryPink.withValues(alpha: 0.35) : Colors.white.withValues(alpha: 0.06),
         ),
       ),
       child: Row(
@@ -170,7 +170,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> with SingleTickerProv
             width: 28,
             child: Text('#$rank',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.4),
+                color: Colors.white.withValues(alpha: 0.4),
                 fontWeight: FontWeight.bold,
                 fontSize: 13,
               )),
@@ -180,7 +180,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> with SingleTickerProv
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: isMe ? AppTheme.primaryGradient : null,
-              color: isMe ? null : Colors.white.withOpacity(0.08),
+              color: isMe ? null : Colors.white.withValues(alpha: 0.08),
             ),
             child: Center(child: Text(player['emoji'] as String, style: const TextStyle(fontSize: 20))),
           ),
@@ -202,7 +202,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> with SingleTickerProv
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryPink.withOpacity(0.2),
+                          color: AppTheme.primaryPink.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: const Text('You', style: TextStyle(color: AppTheme.primaryPink, fontSize: 10)),
@@ -211,7 +211,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> with SingleTickerProv
                   ],
                 ),
                 Text('${player['wins']} wins',
-                  style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12)),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 12)),
               ],
             ),
           ),

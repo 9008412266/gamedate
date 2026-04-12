@@ -43,7 +43,7 @@ class ChatListPage extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text('Recent', style: TextStyle(
-                color: Colors.white.withOpacity(0.5), fontSize: 13, fontWeight: FontWeight.w600)),
+                color: Colors.white.withValues(alpha: 0.5), fontSize: 13, fontWeight: FontWeight.w600)),
             ),
           ),
           SliverList(
@@ -58,10 +58,10 @@ class ChatListPage extends StatelessWidget {
               child: Center(
                 child: Column(
                   children: [
-                    Icon(Icons.chat_bubble_outline, size: 48, color: Colors.white.withOpacity(0.1)),
+                    Icon(Icons.chat_bubble_outline, size: 48, color: Colors.white.withValues(alpha: 0.1)),
                     const SizedBox(height: 12),
                     Text('Match with more players to chat!',
-                      style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 13)),
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 13)),
                   ],
                 ),
               ),
@@ -82,7 +82,7 @@ class ChatListPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Online Now', style: TextStyle(
-          color: Colors.white.withOpacity(0.5), fontSize: 13, fontWeight: FontWeight.w600)),
+          color: Colors.white.withValues(alpha: 0.5), fontSize: 13, fontWeight: FontWeight.w600)),
         const SizedBox(height: 12),
         SizedBox(
           height: 72,

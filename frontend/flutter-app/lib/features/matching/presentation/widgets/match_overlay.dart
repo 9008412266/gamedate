@@ -49,8 +49,8 @@ class _MatchOverlayState extends State<MatchOverlay>
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppTheme.primaryPurple.withOpacity(0.95),
-              AppTheme.primaryPink.withOpacity(0.95),
+              AppTheme.primaryPurple.withValues(alpha: 0.95),
+              AppTheme.primaryPink.withValues(alpha: 0.95),
             ],
           ),
         ),
@@ -84,7 +84,7 @@ class _MatchOverlayState extends State<MatchOverlay>
                     Text(
                       'You and ${widget.matchedUser['displayName']} liked each other!',
                       style: TextStyle(
-                          color: Colors.white.withOpacity(0.8), fontSize: 16),
+                          color: Colors.white.withValues(alpha: 0.8), fontSize: 16),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -160,7 +160,7 @@ class _MatchOverlayState extends State<MatchOverlay>
                       onPressed: widget.onClose,
                       child: Text('Keep Swiping',
                           style: TextStyle(
-                              color: Colors.white.withOpacity(0.6))),
+                              color: Colors.white.withValues(alpha: 0.6))),
                     ),
                   ],
                 ),

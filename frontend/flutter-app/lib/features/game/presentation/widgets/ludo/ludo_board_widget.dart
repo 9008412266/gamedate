@@ -15,7 +15,7 @@ class LudoBoardWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.darkCard,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppTheme.primaryPink.withOpacity(0.3)),
+          border: Border.all(color: AppTheme.primaryPink.withValues(alpha: 0.3)),
         ),
         child: const Center(
           child: Text('Ludo Board', style: TextStyle(color: Colors.white54, fontSize: 18)),

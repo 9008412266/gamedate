@@ -22,7 +22,7 @@ class SocialLoginButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          side: BorderSide(color: Colors.white.withOpacity(0.2)),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           backgroundColor: AppTheme.darkCard,
         ),

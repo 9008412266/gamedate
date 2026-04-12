@@ -97,7 +97,7 @@ class _GameCard extends StatelessWidget {
           gradient: LinearGradient(
             colors: [
               Color(game['color'] as int),
-              Color(game['color'] as int).withOpacity(0.6),
+              Color(game['color'] as int).withValues(alpha: 0.6),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -105,7 +105,7 @@ class _GameCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Color(game['color'] as int).withOpacity(0.3),
+              color: Color(game['color'] as int).withValues(alpha: 0.3),
               blurRadius: 10, offset: const Offset(0, 4)),
           ],
         ),
@@ -124,7 +124,7 @@ class _GameCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(game['desc'] as String,
                   style: TextStyle(
-                      color: Colors.white.withOpacity(0.8), fontSize: 12)),
+                      color: Colors.white.withValues(alpha: 0.8), fontSize: 12)),
             ],
           ),
         ),
@@ -237,12 +237,12 @@ class _OptionTile extends StatelessWidget {
       leading: Container(
         width: 44, height: 44,
         decoration: BoxDecoration(
-          color: AppTheme.primaryPink.withOpacity(0.15),
+          color: AppTheme.primaryPink.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(12)),
         child: Icon(icon, color: AppTheme.primaryPink),
       ),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-      subtitle: Text(subtitle, style: TextStyle(color: Colors.white.withOpacity(0.5))),
+      subtitle: Text(subtitle, style: TextStyle(color: Colors.white.withValues(alpha: 0.5))),
       trailing: const Icon(Icons.chevron_right, color: Colors.white38),
       onTap: onTap,
     );
@@ -274,9 +274,9 @@ class _AiDifficultyCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: _color.withOpacity(0.15),
+          color: _color.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _color.withOpacity(0.4)),
+          border: Border.all(color: _color.withValues(alpha: 0.4)),
         ),
         child: Column(
           children: [
@@ -347,7 +347,7 @@ class _DailyLimitBanner extends StatelessWidget {
           TextButton(
             onPressed: () {}, // Show rewarded ad
             style: TextButton.styleFrom(
-              backgroundColor: Colors.white.withOpacity(0.2),
+              backgroundColor: Colors.white.withValues(alpha: 0.2),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             child: const Text('+1', style: TextStyle(

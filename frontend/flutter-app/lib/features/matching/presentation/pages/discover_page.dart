@@ -45,7 +45,7 @@ class _DiscoverPageState extends State<DiscoverPage>
             icon: Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.08),
+                color: Colors.white.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.tune_rounded, color: Colors.white, size: 18),
@@ -158,8 +158,8 @@ class _DiscoverPageState extends State<DiscoverPage>
             width: 100, height: 100,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppTheme.primaryPink.withOpacity(0.12),
-              border: Border.all(color: AppTheme.primaryPink.withOpacity(0.3)),
+              color: AppTheme.primaryPink.withValues(alpha: 0.12),
+              border: Border.all(color: AppTheme.primaryPink.withValues(alpha: 0.3)),
             ),
             child: const Center(child: Text('🎮', style: TextStyle(fontSize: 44))),
           ),
@@ -168,7 +168,7 @@ class _DiscoverPageState extends State<DiscoverPage>
             style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text('Try expanding your search radius',
-            style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 14)),
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 14)),
           const SizedBox(height: 28),
           GestureDetector(
             onTap: () => context.read<MatchingBloc>().add(LoadDiscoveryStack()),
@@ -178,7 +178,7 @@ class _DiscoverPageState extends State<DiscoverPage>
                 gradient: AppTheme.primaryGradient,
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [BoxShadow(
-                  color: AppTheme.primaryPink.withOpacity(0.35),
+                  color: AppTheme.primaryPink.withValues(alpha: 0.35),
                   blurRadius: 14, offset: const Offset(0, 4),
                 )],
               ),
@@ -228,7 +228,7 @@ class _FilterSheetState extends State<_FilterSheet> {
             child: Container(
               width: 40, height: 4,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2)),
             ),
           ),

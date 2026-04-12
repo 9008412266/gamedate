@@ -53,9 +53,9 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
         child: Stack(
           children: [
             Positioned(top: -60, left: -60,
-              child: _glowCircle(180, AppTheme.primaryPurple.withOpacity(0.12))),
+              child: _glowCircle(180, AppTheme.primaryPurple.withValues(alpha: 0.12))),
             Positioned(bottom: -80, right: -60,
-              child: _glowCircle(200, AppTheme.primaryPink.withOpacity(0.1))),
+              child: _glowCircle(200, AppTheme.primaryPink.withValues(alpha: 0.1))),
             SafeArea(
               child: BlocListener<AuthBloc, AuthState>(
                 listener: (context, state) {
@@ -97,7 +97,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
                             children: [
                               const SizedBox(height: 8),
                               Text('Join the community',
-                                style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 13)),
+                                style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 13)),
                               const SizedBox(height: 28),
                               _buildField(
                                 ctrl: _usernameCtrl,
@@ -136,9 +136,9 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
                               Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.06),
+                                  color: Colors.white.withValues(alpha: 0.06),
                                   borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(color: Colors.white.withOpacity(0.1)),
+                                  border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,7 +147,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
                                       children: [
                                         const Icon(Icons.cake_outlined, color: Colors.white38, size: 20),
                                         const SizedBox(width: 10),
-                                        Text('Age', style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 14)),
+                                        Text('Age', style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 14)),
                                         const Spacer(),
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -199,7 +199,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
                                         gradient: AppTheme.primaryGradient,
                                         borderRadius: BorderRadius.circular(14),
                                         boxShadow: [BoxShadow(
-                                          color: AppTheme.primaryPink.withOpacity(0.35),
+                                          color: AppTheme.primaryPink.withValues(alpha: 0.35),
                                           blurRadius: 16, offset: const Offset(0, 6),
                                         )],
                                       ),
@@ -217,7 +217,7 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text('Already have an account? ',
-                                      style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 14)),
+                                      style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 14)),
                                     GestureDetector(
                                       onTap: () => context.pop(),
                                       child: const Text('Sign In',
@@ -261,22 +261,22 @@ class _RegisterPageState extends State<RegisterPage> with SingleTickerProviderSt
       style: const TextStyle(color: Colors.white, fontSize: 15),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 14),
+        labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 14),
         prefixIcon: Icon(icon, color: Colors.white38, size: 20),
         suffixIcon: suffix,
         filled: true,
-        fillColor: Colors.white.withOpacity(0.06),
+        fillColor: Colors.white.withValues(alpha: 0.06),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppTheme.primaryPink.withOpacity(0.7), width: 1.5),
+          borderSide: BorderSide(color: AppTheme.primaryPink.withValues(alpha: 0.7), width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),

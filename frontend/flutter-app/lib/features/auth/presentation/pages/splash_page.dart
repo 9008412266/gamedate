@@ -59,11 +59,11 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
           children: [
             // Decorative circles
             Positioned(top: -80, right: -80,
-              child: _glowCircle(200, AppTheme.primaryPink.withOpacity(0.15))),
+              child: _glowCircle(200, AppTheme.primaryPink.withValues(alpha: 0.15))),
             Positioned(bottom: -100, left: -80,
-              child: _glowCircle(250, AppTheme.primaryPurple.withOpacity(0.12))),
+              child: _glowCircle(250, AppTheme.primaryPurple.withValues(alpha: 0.12))),
             Positioned(top: 200, left: -50,
-              child: _glowCircle(150, AppTheme.accentCyan.withOpacity(0.08))),
+              child: _glowCircle(150, AppTheme.accentCyan.withValues(alpha: 0.08))),
 
             Center(
               child: FadeTransition(
@@ -83,7 +83,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
                             end: Alignment.bottomRight,
                           ),
                           boxShadow: [
-                            BoxShadow(color: AppTheme.primaryPink.withOpacity(0.4),
+                            BoxShadow(color: AppTheme.primaryPink.withValues(alpha: 0.4),
                                 blurRadius: 30, spreadRadius: 5),
                           ],
                         ),
@@ -98,7 +98,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
                     ),
                     const SizedBox(height: 8),
                     Text('Play Together, Connect Together',
-                      style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14)),
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 14)),
                     const SizedBox(height: 60),
                     SizedBox(
                       width: 32, height: 32,

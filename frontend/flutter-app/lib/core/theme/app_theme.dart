@@ -96,7 +96,7 @@ class AppTheme {
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: primaryPink, width: 2),
       ),
-      hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
+      hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.4)),
     ),
 
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(

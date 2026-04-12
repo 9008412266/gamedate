@@ -140,9 +140,9 @@ class _HomeShellState extends State<HomeShell> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppTheme.darkSurface,
-          border: Border(top: BorderSide(color: Colors.white.withOpacity(0.07))),
+          border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.07))),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, -4)),
+            BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, -4)),
           ],
         ),
         child: SafeArea(
@@ -167,7 +167,7 @@ class _HomeShellState extends State<HomeShell> {
                       gradient: AppTheme.primaryGradient,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [BoxShadow(
-                        color: AppTheme.primaryPink.withOpacity(0.35),
+                        color: AppTheme.primaryPink.withValues(alpha: 0.35),
                         blurRadius: 10, offset: const Offset(0, 2),
                       )],
                     ) : null,
