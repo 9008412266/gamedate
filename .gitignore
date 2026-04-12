@@ -1,0 +1,77 @@
+# ── IDE ─────────────────────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# ── OS ──────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Java / Maven ────────────────────────────────────────────
+target/
+*.class
+*.jar
+*.war
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# ── Spring Boot ─────────────────────────────────────────────
+application-local.yml
+application-prod.yml
+
+# ── Flutter / Dart ──────────────────────────────────────────
+frontend/flutter-app/.dart_tool/
+frontend/flutter-app/.flutter-plugins
+frontend/flutter-app/.flutter-plugins-dependencies
+frontend/flutter-app/build/
+frontend/flutter-app/.packages
+frontend/flutter-app/pubspec.lock
+# Keep pubspec.lock for reproducible builds — uncomment to track:
+# !frontend/flutter-app/pubspec.lock
+
+# ── Android ─────────────────────────────────────────────────
+frontend/flutter-app/android/.gradle/
+frontend/flutter-app/android/local.properties
+frontend/flutter-app/android/key.properties
+frontend/flutter-app/android/app/gamedate.keystore
+*.apk
+*.aab
+
+# ── iOS ─────────────────────────────────────────────────────
+frontend/flutter-app/ios/Pods/
+frontend/flutter-app/ios/.symlinks/
+frontend/flutter-app/ios/Flutter/Flutter.framework
+frontend/flutter-app/ios/Flutter/Flutter.podspec
+*.ipa
+
+# ── Docker ──────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Terraform ───────────────────────────────────────────────
+infrastructure/terraform/.terraform/
+infrastructure/terraform/*.tfstate
+infrastructure/terraform/*.tfstate.backup
+infrastructure/terraform/.terraform.lock.hcl
+infrastructure/terraform/terraform.tfvars
+
+# ── Secrets / Keys ──────────────────────────────────────────
+*.pem
+*.key
+*.p12
+*.keystore
+firebase-service-account.json
+google-services.json
+GoogleService-Info.plist
+serviceAccountKey.json
+
+# ── Logs ────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Test Coverage ────────────────────────────────────────────
+coverage/
+htmlcov/
+*.lcov

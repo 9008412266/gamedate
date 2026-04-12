@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: chat-service
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/gamedate}
+    username: ${DB_USERNAME:gamedate}
+    password: ${DB_PASSWORD:gamedate123}
+    hikari:
+      maximum-pool-size: 30   # Chat needs more connections for WebSocket
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: chat
+
+  flyway:
+    enabled: true
+    schemas: chat
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:redis123}
+      timeout: 2000ms
+
+server:
+  port: 8084
+
+jwt:
+  secret: ${JWT_SECRET:dGhpcyBpcyBhIHZlcnkgbG9uZyBzZWNyZXQga2V5IGZvciBqd3QgdG9rZW4gc2lnbmluZw==}
+
+app:
+  cors:
+    allowed-origins: ${CORS_ORIGINS:*}
+  websocket:
+    # WebRTC TURN server config (required for production NAT traversal)
+    turn-server-url: ${TURN_SERVER_URL:stun:stun.l.google.com:19302}
+    turn-username: ${TURN_USERNAME:}
+    turn-credential: ${TURN_CREDENTIAL:}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  level:
+    com.gamedate: DEBUG
+    org.springframework.messaging: INFO

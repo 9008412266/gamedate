@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/usr/libexec/java_home -v 17)",
+      "Bash(export JAVA_HOME=$\\(/usr/libexec/java_home -v 17\\))",
+      "Bash(mvn clean:*)",
+      "Bash(pkill -f \"user-service-1.0.0.jar\")",
+      "Bash(nohup java:*)",
+      "Bash(flutter pub:*)",
+      "Bash(flutter run:*)"
+    ]
+  }
+}
