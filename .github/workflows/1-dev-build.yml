@@ -308,19 +308,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore common-lib
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.m2/repository/com/playraze/common-lib
-          key: common-lib-${{ github.sha }}
-
-      - name: Set up Java (for Maven build inside Docker)
-        uses: actions/setup-java@v4
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: temurin
-          cache: maven
-
       # Image tag = dev-<short-sha>  (same tag flows through all envs)
       - name: Generate image tag
         id: tag
@@ -339,13 +326,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build common-lib before Docker build
-        run: mvn install -DskipTests -B -f backend/common-lib/pom.xml
-
       - name: Build & Push ${{ matrix.service.name }}
         uses: docker/build-push-action@v5
         with:
-          context: ${{ matrix.service.path }}
+          context: backend
+          file: ${{ matrix.service.path }}/Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_PREFIX }}-${{ matrix.service.name }}:${{ steps.tag.outputs.tag }}

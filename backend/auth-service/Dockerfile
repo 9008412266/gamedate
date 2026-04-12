@@ -1,40 +1,36 @@
 # ── Stage 1: Build ────────────────────────────────────────────
-FROM eclipse-temurin:17-jdk-alpine AS builder
+# Context must be: backend/  (not the service subdirectory)
+FROM maven:3.9-eclipse-temurin-17-alpine AS builder
 
-WORKDIR /app
+WORKDIR /workspace
 
-# Copy Maven wrapper and pom.xml first for dependency caching
-COPY mvnw .
-COPY .mvn .mvn
-COPY pom.xml .
-RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
+# 1) Install common-lib (local dependency shared by all services)
+COPY common-lib/pom.xml common-lib/pom.xml
+COPY common-lib/src     common-lib/src
+RUN mvn install -DskipTests -B -q -f common-lib/pom.xml
 
-# Copy source and build
-COPY src ./src
-RUN ./mvnw package -DskipTests -B
+# 2) Pre-fetch service dependencies for layer caching
+COPY auth-service/pom.xml service/pom.xml
+RUN mvn dependency:go-offline -B -q -f service/pom.xml
+
+# 3) Build the service JAR
+COPY auth-service/src service/src
+RUN mvn package -DskipTests -B -q -f service/pom.xml
 
 # ── Stage 2: Runtime ──────────────────────────────────────────
 FROM eclipse-temurin:17-jre-alpine AS runtime
 
-# Security: run as non-root user
-RUN addgroup -S gamedate && adduser -S gamedate -G gamedate
-USER gamedate
+RUN addgroup -S playraze && adduser -S playraze -G playraze
+USER playraze
 
 WORKDIR /app
 
-# Copy only the fat JAR
-COPY --from=builder --chown=gamedate:gamedate /app/target/*.jar app.jar
+COPY --from=builder --chown=playraze:playraze /workspace/service/target/*.jar app.jar
 
-# JVM tuning for containers
-ENV JAVA_OPTS="-XX:+UseContainerSupport \
-               -XX:MaxRAMPercentage=75.0 \
-               -XX:+UseG1GC \
-               -XX:+UseStringDeduplication \
-               -Djava.security.egd=file:/dev/./urandom"
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -XX:+UseStringDeduplication -Djava.security.egd=file:/dev/./urandom"
 
 EXPOSE 8081
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD wget -q --spider http://localhost:8081/actuator/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3   CMD wget -q --spider http://localhost:8081/actuator/health || exit 1
 
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
