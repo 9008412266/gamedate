@@ -1,13 +1,25 @@
 version: '3.9'
 
 # ============================================================
-# Playraze Platform — Local Development Docker Compose
+# Playraze Platform — Local Development (uses GHCR images)
 # ============================================================
-# Usage:
-#   docker-compose up -d                  # Start all services
-#   docker-compose up -d postgres redis   # Start only infra
-#   docker-compose logs -f auth-service   # Tail logs
-#   docker-compose down -v                # Stop & remove volumes
+# First time setup:
+#   echo $GITHUB_PAT | docker login ghcr.io -u 9008412266 --password-stdin
+#
+# Run all services:
+#   docker-compose up -d
+#
+# Logs:
+#   docker-compose logs -f                  # all services
+#   docker-compose logs -f auth-service     # one service
+#   docker-compose logs -f --tail=50 api-gateway
+#
+# Health check:
+#   docker-compose ps
+#
+# Stop:
+#   docker-compose down
+#   docker-compose down -v                  # also removes DB data
 # ============================================================
 
 networks:
@@ -17,6 +29,8 @@ networks:
 volumes:
   postgres-data:
   redis-data:
+
+x-image-tag: &image-tag ${IMAGE_TAG:-dev-latest}
 
 services:
 
@@ -58,12 +72,10 @@ services:
       timeout: 3s
       retries: 5
 
-  # ── MICROSERVICES ─────────────────────────────────────────
+  # ── MICROSERVICES (GHCR images) ────────────────────────────
 
   api-gateway:
-    build:
-      context: ./backend/api-gateway
-      dockerfile: Dockerfile
+    image: ghcr.io/9008412266/playraze-api-gateway:${IMAGE_TAG:-dev-latest}
     container_name: playraze-gateway
     ports:
       - "8080:8080"
@@ -78,17 +90,21 @@ services:
       CHAT_SERVICE_URL: http://chat-service:8084
       WALLET_SERVICE_URL: http://wallet-service:8085
       NOTIFICATION_SERVICE_URL: http://notification-service:8086
+      SPRING_PROFILES_ACTIVE: docker
     depends_on:
       redis:
         condition: service_healthy
     networks:
       - playraze-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   auth-service:
-    build:
-      context: ./backend/auth-service
-      dockerfile: Dockerfile
+    image: ghcr.io/9008412266/playraze-auth-service:${IMAGE_TAG:-dev-latest}
     container_name: playraze-auth
     ports:
       - "8081:8081"
@@ -116,15 +132,13 @@ services:
       - playraze-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8081/actuator/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
 
   user-service:
-    build:
-      context: ./backend/user-service
-      dockerfile: Dockerfile
+    image: ghcr.io/9008412266/playraze-user-service:${IMAGE_TAG:-dev-latest}
     container_name: playraze-user
     ports:
       - "8082:8082"
@@ -138,7 +152,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-dGhpcyBpcyBhIHZlcnkgbG9uZyBzZWNyZXQga2V5IGZvciBqd3QgdG9rZW4gc2lnbmluZw==}
       AWS_REGION: ${AWS_REGION:-us-east-1}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET:-playraze-media-dev}
-      AWS_CLOUDFRONT_DOMAIN: ${AWS_CLOUDFRONT_DOMAIN:-localhost}
+      SPRING_PROFILES_ACTIVE: docker
     depends_on:
       postgres:
         condition: service_healthy
@@ -147,9 +161,7 @@ services:
     restart: unless-stopped
 
   game-service:
-    build:
-      context: ./backend/game-service
-      dockerfile: Dockerfile
+    image: ghcr.io/9008412266/playraze-game-service:${IMAGE_TAG:-dev-latest}
     container_name: playraze-game
     ports:
       - "8083:8083"
@@ -161,6 +173,7 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD: redis123
       JWT_SECRET: ${JWT_SECRET:-dGhpcyBpcyBhIHZlcnkgbG9uZyBzZWNyZXQga2V5IGZvciBqd3QgdG9rZW4gc2lnbmluZw==}
+      SPRING_PROFILES_ACTIVE: docker
     depends_on:
       postgres:
         condition: service_healthy
@@ -171,9 +184,7 @@ services:
     restart: unless-stopped
 
   chat-service:
-    build:
-      context: ./backend/chat-service
-      dockerfile: Dockerfile
+    image: ghcr.io/9008412266/playraze-chat-service:${IMAGE_TAG:-dev-latest}
     container_name: playraze-chat
     ports:
       - "8084:8084"
@@ -185,6 +196,7 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD: redis123
       JWT_SECRET: ${JWT_SECRET:-dGhpcyBpcyBhIHZlcnkgbG9uZyBzZWNyZXQga2V5IGZvciBqd3QgdG9rZW4gc2lnbmluZw==}
+      SPRING_PROFILES_ACTIVE: docker
     depends_on:
       postgres:
         condition: service_healthy
@@ -195,9 +207,7 @@ services:
     restart: unless-stopped
 
   wallet-service:
-    build:
-      context: ./backend/wallet-service
-      dockerfile: Dockerfile
+    image: ghcr.io/9008412266/playraze-wallet-service:${IMAGE_TAG:-dev-latest}
     container_name: playraze-wallet
     ports:
       - "8085:8085"
@@ -209,6 +219,7 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD: redis123
       JWT_SECRET: ${JWT_SECRET:-dGhpcyBpcyBhIHZlcnkgbG9uZyBzZWNyZXQga2V5IGZvciBqd3QgdG9rZW4gc2lnbmluZw==}
+      SPRING_PROFILES_ACTIVE: docker
     depends_on:
       postgres:
         condition: service_healthy
@@ -217,9 +228,7 @@ services:
     restart: unless-stopped
 
   notification-service:
-    build:
-      context: ./backend/notification-service
-      dockerfile: Dockerfile
+    image: ghcr.io/9008412266/playraze-notification-service:${IMAGE_TAG:-dev-latest}
     container_name: playraze-notification
     ports:
       - "8086:8086"
@@ -232,6 +241,7 @@ services:
       REDIS_PASSWORD: redis123
       JWT_SECRET: ${JWT_SECRET:-dGhpcyBpcyBhIHZlcnkgbG9uZyBzZWNyZXQga2V5IGZvciBqd3QgdG9rZW4gc2lnbmluZw==}
       FCM_SERVER_KEY: ${FCM_SERVER_KEY:-}
+      SPRING_PROFILES_ACTIVE: docker
     depends_on:
       postgres:
         condition: service_healthy
@@ -240,19 +250,3 @@ services:
     networks:
       - playraze-network
     restart: unless-stopped
-
-  # ── NGINX REVERSE PROXY (optional for local SSL) ──────────
-  nginx:
-    image: nginx:alpine
-    container_name: playraze-nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - api-gateway
-    networks:
-      - playraze-network
-    profiles:
-      - production  # Only start with: docker-compose --profile production up
