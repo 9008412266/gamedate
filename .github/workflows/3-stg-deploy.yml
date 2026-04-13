@@ -273,7 +273,11 @@ jobs:
               base: 'main',
               state: 'open'
             });
-            if (prs.data.length === 0) {
+            if (prs.data.length > 0) {
+              console.log(`PR already open: #${prs.data[0].number} — skipping`);
+              return;
+            }
+            try {
               const pr = await github.rest.pulls.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -283,4 +287,8 @@ jobs:
                 base: 'main'
               });
               console.log(`PR created: ${pr.data.html_url}`);
+            } catch (e) {
+              if (e.message && e.message.includes('No commits between')) {
+                console.log('No new commits between stg and main — nothing to promote');
+              } else { throw e; }
             }
