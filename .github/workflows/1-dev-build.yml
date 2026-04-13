@@ -166,7 +166,7 @@ jobs:
 
       - name: "L1 · Flutter build web (compile verify)"
         working-directory: frontend/flutter-app
-        run: flutter build web --release
+        run: flutter build web --release --base-href /gamedate/dev/
 
       - name: "L1 · Flutter unit tests"
         working-directory: frontend/flutter-app
@@ -378,7 +378,7 @@ jobs:
 
       - name: Build Web
         working-directory: frontend/flutter-app
-        run: flutter build web --release
+        run: flutter build web --release --base-href /gamedate/dev/
 
       # ── Artifacts upload (GitHub Actions লো download করা যাবে) ──
       - name: Upload APK
