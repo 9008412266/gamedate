@@ -402,6 +402,14 @@ jobs:
           path: frontend/flutter-app/build/web/
           retention-days: 7
 
+      - name: Deploy Flutter Web → GitHub Pages (dev preview)
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: frontend/flutter-app/build/web
+          destination_dir: dev
+          commit_message: "Deploy dev web preview — ${{ github.sha }}"
+
   # ══════════════════════════════════════════════
   # JOB 8 — dev లో అన్నీ pass అయ్యాక
   #          qa branch కి auto PR create చేస్తుంది
