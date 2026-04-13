@@ -423,12 +423,18 @@ jobs:
         id: tag
         run: echo "tag=dev-$(echo ${{ github.sha }} | cut -c1-8)" >> $GITHUB_OUTPUT
 
-      - name: Create or update qa branch
+      - name: Ensure qa branch exists
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -B qa
-          git push origin qa --force
+          # Create qa branch only if it doesn't exist (don't overwrite it)
+          if ! git ls-remote --exit-code origin qa; then
+            git checkout -b qa
+            git push origin qa
+            echo "qa branch created"
+          else
+            echo "qa branch already exists — skipping create"
+          fi
 
       - name: Create PR dev → qa
         uses: actions/github-script@v7
@@ -446,8 +452,13 @@ jobs:
               state: 'open'
             });
 
-            if (prs.data.length === 0) {
-              await github.rest.pulls.create({
+            if (prs.data.length > 0) {
+              console.log(`PR already open: #${prs.data[0].number} — skipping`);
+              return;
+            }
+
+            try {
+              const pr = await github.rest.pulls.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title: `🧪 Promote to QA — ${tag}`,
@@ -455,4 +466,11 @@ jobs:
                 head: 'dev',
                 base: 'qa'
               });
+              console.log(`Created PR #${pr.data.number}`);
+            } catch (e) {
+              if (e.message && e.message.includes('No commits between')) {
+                console.log('No new commits between dev and qa — nothing to promote');
+              } else {
+                throw e;
+              }
             }
