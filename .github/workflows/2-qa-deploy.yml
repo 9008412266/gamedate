@@ -169,12 +169,17 @@ jobs:
         id: tag
         run: echo "tag=dev-$(echo ${{ github.sha }} | cut -c1-8)" >> $GITHUB_OUTPUT
 
-      - name: Create or update stg branch
+      - name: Ensure stg branch exists
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -B stg
-          git push origin stg --force
+          if ! git ls-remote --exit-code origin stg; then
+            git checkout -b stg
+            git push origin stg
+            echo "stg branch created"
+          else
+            echo "stg branch already exists — skipping create"
+          fi
 
       - name: Create PR qa → stg
         uses: actions/github-script@v7
@@ -188,8 +193,12 @@ jobs:
               base: 'stg',
               state: 'open'
             });
-            if (prs.data.length === 0) {
-              await github.rest.pulls.create({
+            if (prs.data.length > 0) {
+              console.log(`PR already open: #${prs.data[0].number} — skipping`);
+              return;
+            }
+            try {
+              const pr = await github.rest.pulls.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title: `🚀 Promote to STG — ${tag}`,
@@ -197,4 +206,9 @@ jobs:
                 head: 'qa',
                 base: 'stg'
               });
+              console.log(`Created PR #${pr.data.number}`);
+            } catch (e) {
+              if (e.message && e.message.includes('No commits between')) {
+                console.log('No new commits between qa and stg — nothing to promote');
+              } else { throw e; }
             }
