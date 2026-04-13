@@ -29,7 +29,7 @@ const RESOURCES = {"assets/assets/icons/apple.svg": "117cf53964249e0e9a3d1ea5d70
 "canvaskit/skwasm.js": "f2ad9363618c5f62e813740099a80e63",
 "canvaskit/skwasm_st.js": "d1326ceef381ad382ab492ba5d96f04d",
 "flutter.js": "76f08d47ff9f5715220992f993002504",
-"flutter_bootstrap.js": "94849e2626a73bc942212aab48362859",
+"flutter_bootstrap.js": "a00599f0574429c6fb7d3b9f481b14ec",
 "main.dart.js": "5ebfc78e0488e5051879128662dd89c9",
 "version.json": "25670d3fba37b378109c30179a10a411",
 "icons/Icon-maskable-512.png": "301a7604d45b3e739efc881eb04896ea",
